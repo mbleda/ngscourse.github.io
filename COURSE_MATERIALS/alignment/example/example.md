@@ -11,22 +11,23 @@
 [SAMTools]: http://samtools.sourceforge.net/ "SAMtools"
 [dwgsim]: http://sourceforge.net/apps/mediawiki/dnaa/index.php?title=Whole_Genome_Simulation "dwgsim"
 [BEERS]: http://www.cbil.upenn.edu/BEERS/ "BEERS"
+[Ensembl]: http://www.ensembl.org/index.html "Ensembl"
 
 # Preliminaries
 
-In this hands-on will learn how to align DNA and RNA-seq data with most widely used software. 
+In this hands-on will learn how to align DNA and RNA-seq data with most widely used software today. Building a whole genome index requires a lot of RAM memory and almost one hour in a typical workstation, for this reason in this tutorial we will work with chromosome 21 to speed up the exercises. The same steps will be done for a whole genome alignment.
 
 ### NGS aligners used:
 
-- [BWA]: BWA is a software package for mapping DNA low-divergent sequences against a large reference genome, such as the human genome.
-- [Bowtie2]: Bowtie 2 is an ultrafast and memory-efficient tool for aligning DNA sequencing reads to long reference sequences.
-- [TopHat]: TopHat is a fast splice junction mapper for RNA-Seq reads. It aligns RNA-Seq reads to mammalian-sized genomes using the ultra high-throughput short read aligner Bowtie, and then analyzes the mapping results to identify splice junctions between exons.
-- [STAR]: STAR aligns RNA-seq reads to a reference genome using uncompressed suffix arrays.
+- [BWA]: BWA is a software package for mapping **DNA** low-divergent sequences against a large reference genome, such as the human genome.
+- [Bowtie2]: *Bowtie 2* is an ultrafast and memory-efficient tool for aligning **DNA** sequencing reads to long reference sequences.
+- [TopHat]: *TopHat* is a fast splice junction mapper for RNA-Seq reads. It aligns **RNA-Seq** reads to mammalian-sized genomes using the ultra high-throughput short read aligner Bowtie, and then analyzes the mapping results to identify splice junctions between exons.
+- [STAR]: *STAR* aligns **RNA-seq** reads to a reference genome using uncompressed suffix arrays.
 
 ### Other software used in this hands-on:
-- [SAMTools]: SAM Tools provide various utilities for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format.
-- [dwgsim]: dwgsim can perform whole genome simulation.
-- [BEERS]: BEERS is a simulation engine for generating RNA-Seq data.
+- [SAMTools]: SAM Tools **provide various utilities** for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format.
+- [dwgsim]: dwgsim can perform whole **genome simulation**.
+- [BEERS]: BEERS is a **simulation engine** for generating **RNA-Seq** data.
 
 ### File formats explored:
 
@@ -36,34 +37,58 @@ In this hands-on will learn how to align DNA and RNA-seq data with most widely u
 
 ### Data used in this practical
 
-For this hands-on we are going to use DNA and RNA-seq simulated data from chromosome 21. Data has been already simulated using _dwgsim_ for DNA and _BEERS_ for RNA-seq. You can copy from the shared resources into your ``data`` directory for the practical. Preparing the data directory
+Create a ```data``` folder in your *working directory* to store both the *reference genome* to be used (human chromosome 21) and *simulated datasets*:
 
     mkdir data
-    cd data
-    cp path-to_data/* .
 
-The name of the folders describe the type of data, ie. ```dna_chr21_100_high``` stands for: _DNA_ data from _chromosome 21_ with _100_nt read lengths of _high_ quality. Where _high_ quality means 0.1% mutations and _low_ quality 1% mutations.
+##### Download reference genome
 
-If you want to learn how to simulate DNA and RNA-seq go down to the end of this tutorial.
+Working with NGS data requires a high-end workstations and time for building the reference genome indexes and alignment. During this tutorial we will work only with chromosome 21 to speed up the runtimes. Go to the *Download* link at the top of [Ensembl] website and then to *Download data via FTP*, you go in only one step by going to:
+
+    http://www.ensembl.org/info/data/ftp/index.html
+
+You should see a species table with a Human (*Homo sapiens*) row and a *DNA (FASTA)* column, just go there and download the chromosome 21 (*Homo_sapiens.GRCh37.75.dna.chromosome.21.fa.gz*) and move it to your ```data``` folder:
+
+    mv Homo_sapiens.GRCh37.75.dna.chromosome.21.fa.gz path_to_local_data
+
+**NOTE:** For working with the whole genome the file to be downloaded is **Homo_sapiens.GRCh37.75.dna.toplevel.fa.gz**	
 
 
-# Exercise 1: DNA aligment
+##### Copy simulated datasets
 
-<!-- Go to the directory where you have downoaded your data: 
+For this hands-on we are going to use small DNA and RNA-seq datasets simulated from chromosome 21. Data has been already simulated using _dwgsim_ software from SAMtools for DNA and _BEERS_ for RNA-seq. You can copy from the shared resources into your ``data`` directory for the practical. Preparing the data directory:
 
-    cd my_visual_data_dir  
+    cp path_to_shared_data/* your_local_data/
 
-In the following **folder** you wil find mapped sequencing data from a CEU trio (father, mother and child) from the 1000 Genomes Project:
+The name of the folders and files describe the dataset, ie. ```dna_chr21_100_high``` stands for: _DNA_ type of data from _chromosome 21_ with _100_nt read lengths of _high_ quality. Where _high_ quality means 0.1% mutations and _low_ quality 1% mutations.
 
-    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/visualization/example_1
-    
-    ll
+**NOTE:** If you want to learn how to simulate DNA and RNA-seq for other conditions go down to the end of this tutorial.
 
-These datasets contain reads only for the [GABBR1](http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000204681;r=6:29523406-29601753) gene.
--->
+
+# Exercise 1: NGS Genomic DNA aligment
+
+In this exercise we'll learn how to download, install, build the reference genome index and align in single-end and paired-end mode with the two most widely DNA aligners.
+
 
 ### BWA
-./bwa index ../../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
+[BWA] is probably the most used aligner for DNA. AS the documentation states it consists of three different algorithms: *BWA*, *BWA-SW* and *BWA-MEM*. The first algorithm, which is the oldest, is designed for Illumina sequence reads up to 100bp, while the rest two for longer sequences. BWA-MEM and BWA-SW share similar features such as long-read support and split alignment, but BWA-MEM, which is the latest, is generally recommended for high-quality queries as it is faster and more accurate. BWA-MEM also has better performance than BWA for 70-100bp Illumina reads.
+
+All these three algorithms come in the same binary so only one download and installation is needed.
+
+##### Download and install
+You can click on ```SF download page``` link in the [BWA] page or click directly to:
+    http://sourceforge.net/projects/bio-bwa/files/
+
+Click in the last version of BWA and wait for a few seconds, the download will start. 
+
+
+##### Build the index
+
+    ./bwa index ../../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
+
+##### Aligning in SE and PE modes
+
+
 
     ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_high_se.sai
     ./bwa samse index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_high_se.sai ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_high_se.sam
@@ -117,48 +142,7 @@ Run the following **Picard** command to index the new BAM file:
 
 Q1. How many reads are removed as duplicates from the files (hint view the on-screen output from the two commands)?
     
-
-3. Local realignment around INDELS (using GATK)
---------------------------------------------------------------------------------
-
-There are 2 steps to the realignment process:
-
-1. Create a target list of intervals which need to be realigned
-
-    #java -jar GenomeAnalysisTK.jar -T RealignerTargetCreator -R f000-reference.fa -I f010-paired_end_noDup.bam -known gold_indels.vcf -o forIndelRealigner.intervals
-    java -jar GenomeAnalysisTK.jar -T RealignerTargetCreator -R f000-reference.fa -I f010-paired_end_noDup.bam -o f020-indelRealigner.intervals
-
-2. Perform realignment of the target intervals
-
-    java -jar GenomeAnalysisTK.jar -T IndelRealigner -R f000-reference.fa -I f010-paired_end_noDup.bam -targetIntervals f020-indelRealigner.intervals -o f030-paired_and_noDup_realigned.bam 
-
-This creates a file called ``f030-paired_and_noDup_realigned.bam`` containing all the original reads, but with better local alignments in the regions that were realigned.
-
-
-4. Base quality score recalibration (using GATK)
---------------------------------------------------------------------------------
-
-1. Analyze patterns of covariation in the sequence dataset
-
-    java -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R reference.fa -I realigned_reads.bam -L 20 -knownSites dbsnp.vcf -knownSites gold_indels.vcf -o recal_data.table 
-
-This creates a GATKReport file called recal_data.grp containing several tables. These tables contain the covariation data that will be used in a later step to recalibrate the base qualities of your sequence data.
-
-It is imperative that you provide the program with a set of known sites, otherwise it will refuse to run. The known sites are used to build the covariation model and estimate empirical base qualities. For details on what to do if there are no known sites available for your organism of study, please see the online GATK documentation.
-
-2. Do a second pass to analyze covariation remaining after recalibration
-
-    java -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R reference.fa -I realigned_reads.bam -L 20 -knownSites dbsnp.vcf -knownSites gold_indels.vcf -BQSR recal_data.table -o post_recal_data.table 
-
-This creates another GATKReport file, which we will use in the next step to generate plots. Note the use of the -BQSR flag, which tells the GATK engine to perform on-the-fly recalibration based on the first recalibration data table.
-
-3. Apply the recalibration to your sequence data
-
-    java -jar GenomeAnalysisTK.jar -T PrintReads -R reference.fa -I realigned_reads.bam -L 20 -BQSR recal_data.table -o recal_reads.bam
-
-This creates a file called recal_reads.bam containing all the original reads, but now with exquisitely accurate base substitution, insertion and deletion quality scores. By default, the original quality scores are discarded in order to keep the file size down. However, you have the option to retain them by adding the flag –emit_original_quals to the PrintReads command, in which case the original qualities will also be written in the file, tagged OQ.
-
-Notice how this step uses a very simple tool, PrintReads, to apply the recalibration. What’s happening here is that we are loading in the original sequence data, having the GATK engine recalibrate the base qualities on-the-fly thanks to the -BQSR flag (as explained earlier), and just using PrintReads to write out the resulting data to the new file.
+# Exercise 2: NGS RNA-seq aligment
 
 
 4. Variant calling (using GATK - UnifiedGenotyper)
@@ -181,6 +165,7 @@ SNPs and INDELS are called using separate instructions.
 Example: filter SNPs with low confidence calling (QD < 12.0) and flag them as "LowConf".
 
     java -jar GenomeAnalysisTK.jar -T VariantFiltration -R 0_reference.fa -V 8_snp_variants.vcf --filterExpression "QD < 12.0" --filterName "LowConf" -o 9_snp_filtered.vcf
+
 
 # Simulating NGS datasets
 
