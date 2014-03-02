@@ -15,7 +15,7 @@
 
 # Preliminaries
 
-In this hands-on will learn how to align DNA and RNA-seq data with most widely used software today. Building a whole genome index requires a lot of RAM memory and almost one hour in a typical workstation, for this reason in this tutorial we will work with chromosome 21 to speed up the exercises. The same steps will be done for a whole genome alignment.
+In this hands-on will learn how to align DNA and RNA-seq data with most widely used software today. Building a whole genome index requires a lot of RAM memory and almost one hour in a typical workstation, for this reason in this tutorial we will work with chromosome 21 to speed up the exercises. The same steps will be done for a whole genome alignment. Two different datasets, high and low quality have been simulated created, high contains 0.1% of mutations and low contains 1%.
 
 ### NGS aligners used:
 
@@ -60,7 +60,7 @@ For this hands-on we are going to use small DNA and RNA-seq datasets simulated f
 
     cp path_to_shared_data/* your_local_data/
 
-The name of the folders and files describe the dataset, ie. ```dna_chr21_100_high``` stands for: _DNA_ type of data from _chromosome 21_ with _100_nt read lengths of _high_ quality. Where _high_ quality means 0.1% mutations and _low_ quality 1% mutations.
+The name of the folders and files describe the dataset, ie. ```dna_chr21_100_high``` stands for: _DNA_ type of data from _chromosome 21_ with _100_nt read lengths of _high_ quality. Where _high_ quality means 0.1% mutations and _low_ quality 1% mutations. Take a few minutes to understand the different files.
 
 **NOTE:** If you want to learn how to simulate DNA and RNA-seq for other conditions go down to the end of this tutorial.
 
@@ -82,7 +82,7 @@ Download [SAMtools] from *SF Download Page* link and move to the working directo
     cd samtools-0.1.19
     make
 
-Check that is correct by executing it with no arguments, the different commands available should be printed. You can also copy it to your ```bin``` folder in your home directory, if bin folder exist, to make it available from the PATH:
+Check that is correct by executing it with no arguments, the different commands available should be printed. You can also copy it to your ```bin``` folder in your home directory, if bin folder exist, to make it available to the PATH:
 
     ./samtools
     cp samtools ~/bin
@@ -177,8 +177,9 @@ For paired-end alignments with BWA 3 executions are needed: 2 for ```aln``` comm
     ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_high_pe2.sai
     ./bwa sampe index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_high_pe1.sai ../../alignments/bwa/dna_chr21_100_high_pe2.sai ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_high_pe.sam
 
-Now you can use SAMtools to create the BAM file:
+Now you can use SAMtools to create the BAM file from the *alignment/bwa* folder:
 
+    cd alignments/bwa
     samtools view -S -b dna_chr21_100_high_se.sam -o dna_chr21_100_high_se.bam
     samtools view -S -b dna_chr21_100_high_pe.sam -o dna_chr21_100_high_pe.bam
 
@@ -191,6 +192,7 @@ Now you can do the same for the **low** quality datasets:
     ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_low_pe2.sai
     ./bwa sampe index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_low_pe1.sai ../../alignments/bwa/dna_chr21_100_low_pe2.sai ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_low_pe.sam
 
+    cd alignments/bwa
     samtools view -S -b dna_chr21_100_low_se.sam -o dna_chr21_100_low_se.bam
     samtools view -S -b dna_chr21_100_low_pe.sam -o dna_chr21_100_low_pe.bam
 
@@ -235,6 +237,16 @@ Some files will be created in the ```index``` folder, those files constitute the
 
 ##### Aligning in SE and PE modes
 
+Mapping SE with Bowtie2 requires only 1 execution, for aligning the **high** in SE mode execute:
+
+    ./bowtie2 -q -p 4 -x index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -U ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq -S ../../alignments/bowtie/dna_chr21_100_high_se.sam
+
+And create the BAM file using SAMtools;
+
+    cd alignments/bowtie
+    samtools view -S -b dna_chr21_100_high_se.sam -o dna_chr21_100_high_se.bam
+
+Repeat the same steps for the **low** quality dataset.
 
 
 # Simulating NGS datasets
