@@ -29,28 +29,28 @@ File formats explored:
 - VCF Variant Call Format: see [1000 Genomes][vcf-format-1000ge] and [Wikipedia][vcf-format-wikipedia] specifications.
 
 
-Data used in this practical
+<!-- Data used in this practical
 -------------------------------
 
 - [mirbase_mature.fa](../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa): mature micro RNAs downloaded form mirbase
 
 You can download them or copy them to your ``data`` directory for the practical
 
-<!-- clean directory
+clean directory
 
     rm -r data
     mkdir data
     cd data
     cp ../../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa .
--->
+
 
 \ 
 
 Find all data files for the course here: [COURSE_EXAMPLE_DATA](../../../COURSE_EXAMPLE_DATA)
+-->
 
 
-
-Exercise 1: Variant calling with paired-end data
+Exercise 2: Variant calling with single-end data
 ================================================================================
 
 <!-- Go to the directory where you have downoaded your data: 
@@ -59,7 +59,7 @@ Exercise 1: Variant calling with paired-end data
 
 In the following **folder** you wil find mapped sequencing data from a CEU trio (father, mother and child) from the 1000 Genomes Project:
 
-    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/visualization/example_1
+    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/variant_calling/
     
     ll
 

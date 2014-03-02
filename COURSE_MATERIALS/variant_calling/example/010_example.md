@@ -29,6 +29,8 @@ File formats explored:
 - VCF Variant Call Format: see [1000 Genomes][vcf-format-1000ge] and [Wikipedia][vcf-format-wikipedia] specifications.
 
 
+<!--
+
 Data used in this practical
 -------------------------------
 
@@ -36,38 +38,42 @@ Data used in this practical
 
 You can download them or copy them to your ``data`` directory for the practical
 
-<!-- clean directory
+clean directory
 
     rm -r data
     mkdir data
     cd data
-    cp ../../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa .
--->
+    cp ../../../../COURSE_EXAMPLE_DATA/variant_calling/example1/* .
+
 
 \ 
 
 Find all data files for the course here: [COURSE_EXAMPLE_DATA](../../../COURSE_EXAMPLE_DATA)
-
+-->
 
 
 Exercise 1: Variant calling with paired-end data
 ================================================================================
 
-<!-- Go to the directory where you have downoaded your data: 
+Go to the directory where you have downoaded your data: 
 
-    cd my_visual_data_dir  
+    cd my_variant_calling_directory
 
-In the following **folder** you wil find mapped sequencing data from a CEU trio (father, mother and child) from the 1000 Genomes Project:
+In the following **folder** you wil find a paired-end bam file:
 
-    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/visualization/example_1
-    
+    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/variant_calling/example_1
     ll
 
-These datasets contain reads only for the [GABBR1](http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000204681;r=6:29523406-29601753) gene.
--->
+These datasets contain reads only for the chromosome 21.
 
-1. Prepare reference genome: generate the BWA index
+
+1. Prepare reference genome: generate the fasta file index
 --------------------------------------------------------------------------------
+
+Move to the reference directory:
+
+    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/variant_calling/
+
 
 Use ``BWA`` to index the the reference genome:
 
@@ -82,6 +88,7 @@ Use ``SAMTools`` to generate the fasta file index:
 
 This creates a file called f000-reference.fa.fai, with one record per line for each of the contigs in the FASTA reference file.
 
+
 Generate the sequence dictionary using ``Picard``:
 
     java -jar CreateSequenceDictionary.jar REFERENCE=f000-reference.fa OUTPUT=f000-reference.dict
@@ -90,9 +97,13 @@ Generate the sequence dictionary using ``Picard``:
 2. Mark duplicates (using Picard)
 --------------------------------------------------------------------------------
 
+Go to the example1 folder:
+
+    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/variant_calling/example1
+
 Run the following **Picard** command to mark duplicates:
 
-    java -jar MarkDuplicates.jar INPUT=f000-paired_end.bam OUTPUT=f010-paired_end_noDup.bam METRICS_FILE=metrics.txt
+    java -jar MarkDuplicates.jar INPUT=f000-dna_100_high_pe.bam OUTPUT=f010-dna_100_high_pe_noDup.bam METRICS_FILE=metrics.txt
 
 This creates a sorted BAM file called ``f010-paired_end_noDup.bam`` with the same content as the input file, except that any duplicate reads are marked as such. It also produces a metrics file called ``metrics.txt`` containing (can you guess?) metrics.
 
