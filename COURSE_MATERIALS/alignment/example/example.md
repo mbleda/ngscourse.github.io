@@ -41,7 +41,7 @@ Create a ```data``` folder in your *working directory* to store both the *refere
 
     mkdir data
 
-##### Download reference genome
+##### Download reference genome from [Ensembl]
 
 Working with NGS data requires a high-end workstations and time for building the reference genome indexes and alignment. During this tutorial we will work only with chromosome 21 to speed up the runtimes. Go to the *Download* link at the top of [Ensembl] website and then to *Download data via FTP*, you go in only one step by going to:
 
@@ -64,10 +64,47 @@ The name of the folders and files describe the dataset, ie. ```dna_chr21_100_hig
 
 **NOTE:** If you want to learn how to simulate DNA and RNA-seq for other conditions go down to the end of this tutorial.
 
+##### Real datasets
+
+For those with access to high-end nodes clusters you can index and simulated whole genome datasets or download real datasets from this sources:
+- [1000genomes project](http://www.1000genomes.org/)
+- [European Nucleotide Archive (ENA)](https://www.ebi.ac.uk/ena/)
+- [Sequence Read Archive (SRA)](http://www.ncbi.nlm.nih.gov/sra)
+
+
+### Installing SAMtools
+
+Download [SAMtools] from *SF Download Page* link and move to the working directory, then uncompress it.
+
+    mv samtools-0.1.19.tar.bz2 working_directory
+    cd working_directory
+    tar -jxvf samtools-0.1.19.tar.bz2 
+    cd samtools-0.1.19
+    make
+
+Check that is correct by executing, the different commands should be listed. Yo can copy to your ```bin``` folder in the home directory if present to make it available from the PATH:
+
+    ./samtools
+    cp samtools ~/bin
+
 
 # Exercise 1: NGS Genomic DNA aligment
 
-In this exercise we'll learn how to download, install, build the reference genome index and align in single-end and paired-end mode with the two most widely DNA aligners.
+In this exercise we'll learn how to download, install, build the reference genome index and align in single-end and paired-end mode with the two most widely DNA aligners: *BWA* and *Bowtie2*. But first, create an ```aligners``` folder to store the software, and an ```alignments``` folder to store the results, create those folders in your *working directory* next to ```data```, you can create both folders by executing:
+
+    mkdir aligners alignments
+
+Now go to aligners folder and create to folders for *bwa* and *bowtie2* software:
+
+    cd aligners
+    mkdir bwa bowtie2
+
+And the same for the results, go to aligners folder and create to folders for *bwa* and *bowtie2* software:
+
+    cd alignments
+    mkdir bwa bowtie2
+    
+**NOTE:** Now your working directory must contain 3 folders: data (with the reference genome of chrom. 21 and simulated datasets), aligners and alignments.
 
 
 ### BWA
@@ -76,56 +113,72 @@ In this exercise we'll learn how to download, install, build the reference genom
 All these three algorithms come in the same binary so only one download and installation is needed.
 
 ##### Download and install
+
 You can click on ```SF download page``` link in the [BWA] page or click directly to:
 
-    http://sourceforge.net/projects/bio-bwa/files/
+[http://sourceforge.net/projects/bio-bwa/files](http://sourceforge.net/projects/bio-bwa/files)
 
-Click in the last version of BWA and wait for a few seconds, the download will start. 
+Click in the last version of BWA and wait for a few seconds, as the time of this tutorial last version is **bwa-0.7.7.tar.bz2**, the download will start. When downloaded go to your browser download folder and move it to aligners folder, uncompress it and compile it:
+
+    mv bwa-0.7.7.tar.bz2 working_directory/aligners/bwa
+    tar -jxvf bwa-0.7.7.tar.bz2
+    cd bwa-0.7.7
+    make
+
+You can check that everything is allright by executing:
+
+    ./bwa
+
+Some information about the software and commands should be listed.
 
 
 ##### Build the index
 
-    ./bwa index ../../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
+Create a folder inside BWA program called ```index``` to store the BWA index and copy the reference genome into it:
+    
+    cd bwa-0.7.7   (if not in it)
+    mkdir index
+    cp ../../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa index/
+    
+Now you can create the index by executing:
+
+    ./bwa index index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
+
+Some files will be created in the ```index``` folder, those files constitute the index that BWA uses.
+
+**NOTE:** The index must created only once, it will be used for all the different alignments with BWA.
+
 
 ##### Aligning in SE and PE modes
 
-
+Single-end alignment with BWA requires 2 executions. The first uses ```aln``` command and takes the ```fastq``` file and creates a ```sai``` file; the second execution uses ```samse``` and the ```sai``` file and create the ```sam``` file. Results are stored in ```alignments``` folder:
 
     ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_high_se.sai
     ./bwa samse index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_high_se.sai ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_high_se.sam
+
+
+For paired-end alignments with BWA 3 executions are needed: 2 for ```aln``` command and 1 for ```sampe``` command:
 
     ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_high_pe1.sai
     ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_high_pe2.sai
     ./bwa sampe index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_high_pe1.sai ../../alignments/bwa/dna_chr21_100_high_pe2.sai ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_high_pe.sam
 
+Now you can use SAMtools to create the BAM file:
 
- 1036  ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_low_se.sai
- 1037  ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_low_pe1.sai
- 1038  ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_low_pe2.sai
- 1039  ./bwa samse index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_low_se.sai ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_low_se.sam
- 1040  ./bwa sampe index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_low_pe1.sai ../../alignments/bwa/dna_chr21_100_low_pe2.sai ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_low_pe.sam
+    samtools view -S -b dna_chr21_100_high_se.sam -o dna_chr21_100_high_se.bam
+    samtools view -S -b dna_chr21_100_high_pe.sam -o dna_chr21_100_high_pe.bam
 
-samtools view -S -b dna_chr21_100_high_pe.sam -o dna_chr21_100_high_pe.bam
+Now you can do the same for the low quality datasets:
 
-##### 1. Prepare reference genome: generate the BWA index
+    ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_low_se.sai
+    ./bwa samse index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_low_se.sai ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_low_se.sam
 
+    ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_low_pe1.sai
+    ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_low_pe2.sai
+    ./bwa sampe index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_low_pe1.sai ../../alignments/bwa/dna_chr21_100_low_pe2.sai ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read2.fastq -f ../../alignments/bwa/dna_chr21_100_low_pe.sam
 
-Use ``BWA`` to index the the reference genome:
-
-    bwa index -a bwtsw f000-reference.fa
-
-where ``-a bwtsw`` specifies that we want to use the indexing algorithm that is capable of handling the whole human genome.
-
-
-Use ``SAMTools`` to generate the fasta file index:
-
-    samtools faidx f000-reference.fa
-
-This creates a file called f000-reference.fa.fai, with one record per line for each of the contigs in the FASTA reference file.
-
-Generate the sequence dictionary using ``Picard``:
-
-    java -jar CreateSequenceDictionary.jar REFERENCE=f000-reference.fa OUTPUT=f000-reference.dict
+    samtools view -S -b dna_chr21_100_low_se.sam -o dna_chr21_100_low_se.bam
+    samtools view -S -b dna_chr21_100_low_pe.sam -o dna_chr21_100_low_pe.bam
 
 
 2. Mark duplicates (using Picard)
