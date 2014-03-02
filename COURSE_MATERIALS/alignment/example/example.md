@@ -45,13 +45,13 @@ Create a ```data``` folder in your *working directory* to store both the *refere
 
 Working with NGS data requires a high-end workstations and time for building the reference genome indexes and alignment. During this tutorial we will work only with chromosome 21 to speed up the runtimes. Go to the *Download* link at the top of [Ensembl] website and then to *Download data via FTP*, you go in only one step by going to:
 
-    http://www.ensembl.org/info/data/ftp/index.html
+[http://www.ensembl.org/info/data/ftp/index.html](http://www.ensembl.org/info/data/ftp/index.html)
 
-You should see a species table with a Human (*Homo sapiens*) row and a *DNA (FASTA)* column, just go there and download the chromosome 21 (*Homo_sapiens.GRCh37.75.dna.chromosome.21.fa.gz*) and move it to your ```data``` folder:
+You should see a species table with a Human (*Homo sapiens*) row and a *DNA (FASTA)* column or click at [ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/](ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/), download the chromosome 21 file (*Homo_sapiens.GRCh37.75.dna.chromosome.21.fa.gz*) and move it from your browser download folder to your ```data``` folder:
 
     mv Homo_sapiens.GRCh37.75.dna.chromosome.21.fa.gz path_to_local_data
 
-**NOTE:** For working with the whole genome the file to be downloaded is **Homo_sapiens.GRCh37.75.dna.toplevel.fa.gz**	
+**NOTE:** For working with the whole reference genome the file to be downloaded is *Homo_sapiens.GRCh37.75.dna.toplevel.fa.gz*
 
 
 ##### Copy simulated datasets
@@ -77,6 +77,7 @@ All these three algorithms come in the same binary so only one download and inst
 
 ##### Download and install
 You can click on ```SF download page``` link in the [BWA] page or click directly to:
+
     http://sourceforge.net/projects/bio-bwa/files/
 
 Click in the last version of BWA and wait for a few seconds, the download will start. 
