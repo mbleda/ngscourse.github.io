@@ -246,6 +246,15 @@ And create the BAM file using SAMtools;
     cd alignments/bowtie
     samtools view -S -b dna_chr21_100_high_se.sam -o dna_chr21_100_high_se.bam
 
+Mapping in PE also requires only one execution:
+
+    ./bowtie2 -q -p 4 -x index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -1 ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq -2 ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read2.fastq -S ../../alignments/bowtie/dna_chr21_100_high_pe.sam
+
+And create the BAM file using SAMtools;
+
+    cd alignments/bowtie
+    samtools view -S -b dna_chr21_100_high_pe.sam -o dna_chr21_100_high_pe.bam
+    
 Repeat the same steps for the **low** quality dataset.
 
 
