@@ -82,7 +82,7 @@ Download [SAMtools] from *SF Download Page* link and move to the working directo
     cd samtools-0.1.19
     make
 
-Check that is correct by executing, the different commands should be listed. Yo can copy to your ```bin``` folder in the home directory if present to make it available from the PATH:
+Check that is correct by executing it with no arguments, the different commands available should be printed. You can also copy it to your ```bin``` folder in your home directory, if bin folder exist, to make it available from the PATH:
 
     ./samtools
     cp samtools ~/bin
@@ -94,17 +94,31 @@ In this exercise we'll learn how to download, install, build the reference genom
 
     mkdir aligners alignments
 
-Now go to aligners folder and create to folders for *bwa* and *bowtie2* software:
-
-    cd aligners
-    mkdir bwa bowtie2
-
-And the same for the results, go to aligners folder and create to folders for *bwa* and *bowtie2* software:
+Now go to ```alignments``` folder and create to folders for *bwa* and *bowtie* to store alignments results:
 
     cd alignments
-    mkdir bwa bowtie2
+    mkdir bwa bowtie
     
-**NOTE:** Now your working directory must contain 3 folders: data (with the reference genome of chrom. 21 and simulated datasets), aligners and alignments.
+**NOTE:** Now your working directory must contain 3 folders: data (with the reference genome of chrom. 21 and simulated datasets), aligners and alignments. Your working directory should be similar to this (notice that aligners have not been downloaded):
+
+```
+.
+├── aligners
+│   ├── bowtie2-2.2.1
+│   ├── bowtie2-2.2.1-linux-x86_64.zip
+│   ├── bwa-0.7.7
+│   └── bwa-0.7.7.tar.bz2
+├── alignments
+│   ├── bowtie
+│   ├── bwa
+├── data
+│   ├── dna_chr21_100_high
+│   ├── dna_chr21_100_low
+│   └── Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
+├── samtools
+    ├── samtools-0.1.19
+    └── samtools-0.1.19.tar.bz2
+```
 
 
 ### BWA
@@ -151,7 +165,7 @@ Some files will be created in the ```index``` folder, those files constitute the
 
 ##### Aligning in SE and PE modes
 
-Single-end alignment with BWA requires 2 executions. The first uses ```aln``` command and takes the ```fastq``` file and creates a ```sai``` file; the second execution uses ```samse``` and the ```sai``` file and create the ```sam``` file. Results are stored in ```alignments``` folder:
+Now we are going to align SE and PE the **high** quality dataset. Single-end alignment with BWA requires 2 executions. The first uses ```aln``` command and takes the ```fastq``` file and creates a ```sai``` file; the second execution uses ```samse``` and the ```sai``` file and create the ```sam``` file. Results are stored in ```alignments``` folder:
 
     ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_high_se.sai
     ./bwa samse index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_high_se.sai ../../data/dna_chr21_100_high/dna_chr21_100_high.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_high_se.sam
@@ -168,7 +182,7 @@ Now you can use SAMtools to create the BAM file:
     samtools view -S -b dna_chr21_100_high_se.sam -o dna_chr21_100_high_se.bam
     samtools view -S -b dna_chr21_100_high_pe.sam -o dna_chr21_100_high_pe.bam
 
-Now you can do the same for the low quality datasets:
+Now you can do the same for the **low** quality datasets:
 
     ./bwa aln index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa -t 4 ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_low_se.sai
     ./bwa samse index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../alignments/bwa/dna_chr21_100_low_se.sai ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq -f ../../alignments/bwa/dna_chr21_100_low_se.sam
@@ -181,44 +195,46 @@ Now you can do the same for the low quality datasets:
     samtools view -S -b dna_chr21_100_low_pe.sam -o dna_chr21_100_low_pe.bam
 
 
-2. Mark duplicates (using Picard)
---------------------------------------------------------------------------------
+### Bowtie2
+[Bowtie2] as documentation states is an ultrafast and memory-efficient tool for aligning sequencing reads to long reference sequences. It is particularly good at aligning reads of about 50 up to few 100s. Bowtie 2 indexes the genome with an FM Index to keep its memory footprint small: for the human genome, its memory footprint is typically around 3.2 GB. Bowtie 2 supports gapped, local, and paired-end alignment modes.
 
-Run the following **Picard** command to mark duplicates:
+##### Download and install
 
-    java -jar MarkDuplicates.jar INPUT=f000-paired_end.bam OUTPUT=f010-paired_end_noDup.bam METRICS_FILE=metrics.txt
+From [Bowtie2] got to ```Latest Release``` and download the program or go directly to:
 
-This creates a sorted BAM file called ``f010-paired_end_noDup.bam`` with the same content as the input file, except that any duplicate reads are marked as such. It also produces a metrics file called ``metrics.txt`` containing (can you guess?) metrics.
+[http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.2.1/](http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.2.1/)
 
-Run the following **Picard** command to index the new BAM file:
+Click in the Linux version of Bowtie2 and wait for a few seconds, as the time of this tutorial last version is **bowtie2-2.2.1-linux-x86_64.zip**, the download will start. When downloaded go to your browser download folder and move it to aligners folder and uncompress it. No need to compile if you downloaded the Linux version:
 
-    java -jar BuildBamIndex.jar INPUT=f010-paired_end_noDup.bam
+    mv bowtie2-2.2.1-linux-x86_64.zip working_directory/aligners/bowtie
+    unzip bowtie2-2.2.1-linux-x86_64.zip
+    cd bowtie2-2.2.1
 
-Q1. How many reads are removed as duplicates from the files (hint view the on-screen output from the two commands)?
+You can check that everything is allright by executing:
+
+    ./bowtie2
+
+Big information about the software and commands should be listed.
+
+
+##### Build the index
+
+Create a folder inside Bowtie2 program called ```index``` to store the Bowtie2 index and copy the reference genome into it:
     
-# Exercise 2: NGS RNA-seq aligment
+    cd bowtie2-2.2.1   (if not in it)
+    mkdir index
+    cp ../../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa index/
+    
+Now you can create the index by executing:
 
+    ./bowtie2-build index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
 
-4. Variant calling (using GATK - UnifiedGenotyper)
---------------------------------------------------------------------------------
+Some files will be created in the ```index``` folder, those files constitute the index that Bowtie2 uses.
 
-SNPs and INDELS are called using separate instructions.
+**NOTE:** The index must created only once, it will be used for all the different alignments with Bowtie2.
 
-1. SNP calling
+##### Aligning in SE and PE modes
 
-    java -jar GenomeAnalysisTK.jar -T UnifiedGenotyper -R f000_reference.fa -I 7_realigned_aligned.bam -glm SNP -o 8_snp_variants.vcf
-
-2. INDEL calling
-
-    java -jar GenomeAnalysisTK.jar -T UnifiedGenotyper -R 0_reference.fa -I 7_realigned_aligned.bam -glm INDEL -o 8_indel_variants.vcf
-
-
-5. Introduce filters in the VCF file
---------------------------------------------------------------------------------
-
-Example: filter SNPs with low confidence calling (QD < 12.0) and flag them as "LowConf".
-
-    java -jar GenomeAnalysisTK.jar -T VariantFiltration -R 0_reference.fa -V 8_snp_variants.vcf --filterExpression "QD < 12.0" --filterName "LowConf" -o 9_snp_filtered.vcf
 
 
 # Simulating NGS datasets
