@@ -8,6 +8,7 @@
 [Bowtie2]: http://bowtie-bio.sourceforge.net/bowtie2/index.shtml "Bowtie2"
 [TopHat]: http://tophat.cbcb.umd.edu/ "TopHat"
 [STAR]: https://code.google.com/p/rna-star/ "STAR"
+[MapSplice2]: http://www.netlab.uky.edu/p/bioinfo/MapSplice2 "MapSplice2"
 [SAMTools]: http://samtools.sourceforge.net/ "SAMtools"
 [dwgsim]: http://sourceforge.net/apps/mediawiki/dnaa/index.php?title=Whole_Genome_Simulation "dwgsim"
 [BEERS]: http://www.cbil.upenn.edu/BEERS/ "BEERS"
@@ -202,7 +203,7 @@ Now you can do the same for the **low** quality datasets:
 
 ##### Download and install
 
-From [Bowtie2] got to ```Latest Release``` and download the program or go directly to:
+From [Bowtie2] go to ```Latest Release``` and download the program or go directly to:
 
 [http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.2.1/](http://sourceforge.net/projects/bowtie-bio/files/bowtie2/2.2.1/)
 
@@ -256,6 +257,41 @@ And create the BAM file using SAMtools;
     samtools view -S -b dna_chr21_100_high_pe.sam -o dna_chr21_100_high_pe.bam
     
 Repeat the same steps for the **low** quality dataset.
+
+
+# Exercise 2: NGS RNA-seq aligment
+
+In this exercise we'll learn how to download, install, build the reference genome index and align in single-end and paired-end mode with the two most widely RNA-seq aligner: *TopHat2*. TopHat2 uses Bowtie2 as an aligner.
+
+**NOTE:** Two others commonly used RNA-seq aligners are [STAR] and [MapSplice2], no guided exercises have been documented in this tutorials, but users are encouraged to follow the instructions of their web sites.
+
+Go to ```alignments``` folder and create to folders for *bwa* and *bowtie* to store alignments results:
+
+    cd alignments
+    mkdir tophat
+
+    
+### TopHat2
+
+[TopHat2] states to be a *fast* splice junction mapper for RNA-Seq reads, which is not always completrly true. It aligns RNA-Seq reads to mammalian-sized genomes using the ultra high-throughput short read aligner Bowtie, and then analyzes the mapping results to identify splice junctions between exons.
+
+##### Download and install
+
+From [TopHat2] go to ```Releases``` and download the Linux program by clicking in *Linux x86_64 binary* link.
+
+As the time of this tutorial last version is **tophat-2.0.10.Linux_x86_64.tar.gz**, the download will start. When downloaded go to your browser download folder and move it to aligners folder and uncompress it. No need to compile if you downloaded the Linux version:
+
+    mv tophat-2.0.10.Linux_x86_64.tar.gz working_directory/aligners/tophat
+    tar -zxvf tophat-2.0.10.Linux_x86_64.tar.gz
+    cd tophat-2.0.10.Linux_x86_64
+
+You can check that everything is allright by executing:
+
+    ./tophat2
+
+Big information about the software and commands should be listed.
+
+**NOTE:** TopHat uses Bowtie as the aligner. You can use either Bowtie 2 (the default) or Bowtie (--bowtie1) and you will need the following Bowtie 2 (or Bowtie) programs in your PATH. Index must be created with Bowtie not TopHat.
 
 
 # Simulating NGS datasets
