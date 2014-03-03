@@ -29,8 +29,11 @@ Day 2
 
 ### Variant calling
 
+- [Slides](COURSE_MATERIALS/variant_calling/slides/2014-Cambridge_variant_calling.pdf) || [Practical exercise 1](COURSE_MATERIALS/variant_calling/example/010_example.html) || [Practical exercise 2](COURSE_MATERIALS/variant_calling/example/020_example.html) || [Practical exercise 3](COURSE_MATERIALS/variant_calling/example/030_example.html)
+
 ### Variant annotation
 
+- [Slides](COURSE_MATERIALS/variant_annotation/slides/2014-Cambridge_variant_annotation.pdf) || [Practical exercise 1](COURSE_MATERIALS/variant_annotation/example/010_example.html)
 
 Day 3
 -----
