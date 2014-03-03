@@ -258,6 +258,11 @@ And create the BAM file using SAMtools;
     
 Repeat the same steps for the **low** quality dataset.
 
+### More exercises
+
+- Try to simulate datasets with longer reads and more mutations to study which aligner behaves better
+- Test the aligner sensitivity to INDELS
+
 
 # Exercise 2: NGS RNA-seq aligment
 
@@ -294,14 +299,48 @@ Big information about the software and commands should be listed.
 **NOTE:** TopHat uses Bowtie as the aligner. You can use either Bowtie 2 (the default) or Bowtie (--bowtie1) and you will need the following Bowtie 2 (or Bowtie) programs in your PATH. Index must be created with Bowtie not TopHat.
 
 
+### STAR and MapSplice2
+[STAR] and [MapSplice2] are two others interesting RNA-seq aligners. [STAR] offer a great performance while still have good sensitivity. [MapSplice2] shows usually a better sensitivity but is several times slower.
+
+##### STAR installation
+STAR comes compiled for Linux, you only have to download the *tarball*:
+
+    tar -zxvf STAR_2.3.0e.Linux_x86_64_static.tgz
+
+Read the documentation and try to align the simulated dataset.
+
+
+##### MapSplice2 installation
+MapSplice must be unizpped and compiled:
+
+    unzip MapSplice-v2.1.6.zip
+    cd MapSplice-v2.1.6
+    make
+
+Read the documentation and try to align the simulated dataset.
+
+
 # Simulating NGS datasets
 
 ### DNA
+Download [dwgsim] from http://sourceforge.net/projects/dnaa/files/ to the *working_directory* and uncompress it and compile it:
 
-    ./dwgsim-0.1.11/dwgsim -1 100 -2 100 -y 0 -N 1000000 ../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../data/dna_chr21_100_high/dna_chr21_100_high
-    ./dwgsim-0.1.11/dwgsim -1 100 -2 100 -y 0 -N 1000000 -r 0.01 ../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../data/dna_chr21_100_low/dna_chr21_100_low
+    tar -zxvf dwgsim-0.1.10.tar.gz
+    cd dwgsim-0.1.10
+    make
+
+Check options by executing:
+
+    ./dwgsim
+
+Then you can simulate 2 million reads of 150bp with a 2% if mutation executing:
+
+    ./dwgsim-0.1.11/dwgsim -1 150 -2 150 -y 0 -N 2000000 -r 0.02 ../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../data/dna_chr21_100_low/dna_chr21_100_verylow
 
 
 ### RNA-seq
+[BEERS] is a perl-based program, no compilation is needed, just download it from here http://www.cbil.upenn.edu/BEERS and uncompress it:
+
+    tar xvf beers.tar
 
 
