@@ -14,7 +14,7 @@ Day 1
 - [Slides](COURSE_MATERIALS/alignment/slides/ngs_introduction_mda14.pdf)
 
 ### Quality control for NGS raw data
-- [Slides](COURSE_MATERIALS/quality_control/slides/slides.pdf) - [Practical exercise](COURSE_MATERIALS/quality_control/example/example.html)
+- [Slides](COURSE_MATERIALS/quality_control/slides/slides.pdf) - [Practical exercise](COURSE_MATERIALS/quality_control/example/example.html) - [Data](COURSE_EXAMPLE_DATA/f000_raw_mirna.fastq)
 
 
 ### Mapping reads to a reference genome
