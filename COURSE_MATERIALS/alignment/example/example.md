@@ -108,17 +108,29 @@ Now go to ```alignments``` folder and create to folders for *bwa* and *bowtie* t
 │   ├── bowtie2-2.2.1
 │   ├── bowtie2-2.2.1-linux-x86_64.zip
 │   ├── bwa-0.7.7
-│   └── bwa-0.7.7.tar.bz2
+│   ├── bwa-0.7.7.tar.bz2
+│   ├── tophat-2.0.10.Linux_x86_64
+│   └── tophat-2.0.10.Linux_x86_64.tar.gz
 ├── alignments
 │   ├── bowtie
 │   ├── bwa
+│   └── tophat
 ├── data
 │   ├── dna_chr21_100_high
 │   ├── dna_chr21_100_low
-│   └── Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
+│   ├── Homo_sapiens_cDNAs_chr21.fa
+│   ├── Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
+│   ├── rna_chr21_100_high
+│   └── rna_chr21_150_low
 ├── samtools
-    ├── samtools-0.1.19
-    └── samtools-0.1.19.tar.bz2
+│   ├── samtools-0.1.19
+│   └── samtools-0.1.19.tar.bz2
+└── simulators
+    ├── beers.tar
+    ├── dwgsim-0.1.10
+    ├── dwgsim-0.1.10.tar.gz
+    └── reads_simulator.pl
+
 ```
 
 
@@ -262,6 +274,7 @@ Repeat the same steps for the **low** quality dataset.
 
 - Try to simulate datasets with longer reads and more mutations to study which aligner behaves better
 - Test the aligner sensitivity to INDELS
+- Try BWA-MEM algorithm and compare sensitivity
 
 
 # Exercise 2: NGS RNA-seq aligment
@@ -342,5 +355,4 @@ Then you can simulate 2 million reads of 150bp with a 2% if mutation executing:
 [BEERS] is a perl-based program, no compilation is needed, just download it from here http://www.cbil.upenn.edu/BEERS and uncompress it:
 
     tar xvf beers.tar
-
 
