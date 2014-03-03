@@ -5,10 +5,10 @@ Day 1
 
 
 ### Introduction to Linux systems
-
+- [Slides](COURSE_MATERIALS/alignment/slides/presentation_mda14.pdf)
 
 ### Introduction to NGS technologies
-
+- [Slides](COURSE_MATERIALS/alignment/slides/ngs_introduction_mda14.pdf)
 
 ### Quality control for NGS raw data
 
@@ -16,7 +16,7 @@ Day 1
 
 
 ### Mapping reads to a reference genome
-
+- [Slides](COURSE_MATERIALS/alignment/slides/ngs-read-mapping-imedina-mda14.pdf) - [Practical exercise](COURSE_MATERIALS/alignment/example/example.html)
 
 ### Visualization of NGS data
 
