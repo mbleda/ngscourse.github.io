@@ -16,7 +16,7 @@ Day 1
 
 
 ### Mapping reads to a reference genome
-- [Slides](COURSE_MATERIALS/alignment/slides/ngs-read-mapping-imedina-mda14.pdf) - [Practical exercise](COURSE_MATERIALS/alignment/example/example.html)
+- [Slides](COURSE_MATERIALS/alignment/slides/ngs-read-mapping-imedina-mda14.pdf) - [Practical exercise](http://ngscourse.github.io/COURSE_MATERIALS/alignment/example/example.html)
 
 ### Visualization of NGS data
 
