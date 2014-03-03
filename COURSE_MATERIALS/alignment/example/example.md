@@ -274,7 +274,7 @@ Repeat the same steps for the **low** quality dataset.
 
 - Try to simulate datasets with longer reads and more mutations to study which aligner behaves better
 - Test the aligner sensitivity to INDELS
-- Try BWA-MEM algorithm and compare sensitivity
+- Try BWA-MEM algorithm and compare sensitivity. The same index is valid, only one execution for the SAM file ```./bwa mem index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq```
 
 
 # Exercise 2: NGS RNA-seq aligment
@@ -309,7 +309,23 @@ You can check that everything is allright by executing:
 
 Big information about the software and commands should be listed.
 
-**NOTE:** TopHat uses Bowtie as the aligner. You can use either Bowtie 2 (the default) or Bowtie (--bowtie1) and you will need the following Bowtie 2 (or Bowtie) programs in your PATH. Index must be created with Bowtie not TopHat.
+**NOTE:** TopHat uses Bowtie as the aligner. You can use either Bowtie 2 (the default) or Bowtie (--bowtie1) and you will need the following Bowtie 2 (or Bowtie) programs in your PATH. Index must be created with Bowtie not TopHat. So, copy Bowtie2 into ~/bin:
+    
+    cd bowtie2-2.2.1   (bowtie 2.2 does not work)
+    cp bowtie* ~/bin
+
+
+##### Aligning in SE and PE modes
+
+To align in SE mode:
+
+    ./tophat2 -o ~/courses/cambridge_mda14/alignments/tophat/rna_chr21_100_high_se ~/courses/cambridge_mda14/aligners/bowtie2-2.2.1/index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ~/courses/cambridge_mda14/data/rna_chr21_100_high/rna_chr21_100_high.bwa.read1.fastq
+
+And for PE:
+
+    ./tophat2 -o ~/courses/cambridge_mda14/alignments/tophat/rna_chr21_100_high_pe/ ~/courses/cambridge_mda14/aligners/bowtie2-2.2.1/index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ~/courses/cambridge_mda14/data/rna_chr21_100_high/rna_chr21_100_high.bwa.read1.fastq ~/courses/cambridge_mda14/data/rna_chr21_100_high/rna_chr21_100_high.bwa.read2.fastq
+
+Align the rna dataset of 150bp with low quality.
 
 
 ### STAR and MapSplice2
