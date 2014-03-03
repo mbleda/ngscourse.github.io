@@ -28,24 +28,14 @@
 <li><a href="http://samtools.sourceforge.net/SAMv1.pdf">SAM</a></li>
 <li><a href="http://www.broadinstitute.org/igv/bam">BAM</a></li>
 </ul>
-<h2 id="data-used-in-this-practical">Data used in this practical</h2>
-<ul>
-<li><a href="../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa">mirbase_mature.fa</a>: mature micro RNAs downloaded form mirbase</li>
-</ul>
-<p>You can download them or copy them to your <code>data</code> directory for the practical</p>
-<!-- clean directory
-    rm -r data
--->
-
-<pre><code>mkdir data
-cd data
-cp ../../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa .</code></pre>
-<p> </p>
-<p>Find all data files for the course here: <a href="../../../COURSE_EXAMPLE_DATA">COURSE_EXAMPLE_DATA</a></p>
 <h1 id="exercise-1-visualizing-sequencing-data">Exercise 1: Visualizing sequencing data</h1>
+<p>Go to your course directory:</p>
+<pre><code>cd &lt;my_course_directory&gt;</code></pre>
+<p>Copy the data for the tutorials:</p>
+<pre><code>cp -r /mounts/course_shares/Open_Share/visualization .
+ll</code></pre>
 <p>In the following <strong>folder</strong> you wil find mapped sequencing data from a CEU trio (father, mother and child) from the 1000 Genomes Project:</p>
-<pre><code>cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/visualization/example_1
-
+<pre><code>cd example_1
 ll</code></pre>
 <p>These datasets contain reads only for the <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000204681;r=6:29523406-29601753">GABBR1</a> gene.</p>
 <h2 id="creating-indexed-files">Creating indexed files</h2>

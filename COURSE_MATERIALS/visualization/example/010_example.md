@@ -25,39 +25,22 @@ File formats explored:
 - [SAM](http://samtools.sourceforge.net/SAMv1.pdf)
 - [BAM](http://www.broadinstitute.org/igv/bam)
 
-<!--
-Data used in this practical
--------------------------------
-
-- [mirbase_mature.fa](../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa): mature micro RNAs downloaded form mirbase
-
-You can download them or copy them to your ``data`` directory for the practical
-
- clean directory
-
-    rm -r data
-    mkdir data
-    cd data
-    cp ../../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa .
-
-
-\ 
-
-Find all data files for the course here: [COURSE_EXAMPLE_DATA](../../../COURSE_EXAMPLE_DATA)
-
--->
 
 Exercise 1: Visualizing sequencing data
 ================================================================================
 
-Go to the directory where youhave downoaded your data: 
+Go to your course directory:
 
-    cd my_visual_data_dir  
+    cd <my_course_directory>
+
+Copy the data for the tutorials:
+
+    cp -r /mounts/course_shares/Open_Share/visualization .
+    ll
 
 In the following **folder** you wil find mapped sequencing data from a CEU trio (father, mother and child) from the 1000 Genomes Project:
 
-    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/visualization/example_1
-    
+    cd example_1
     ll
 
 These datasets contain reads only for the [GABBR1](http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000204681;r=6:29523406-29601753) gene.
