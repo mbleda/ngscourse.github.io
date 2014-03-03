@@ -20,15 +20,15 @@ In this hands-on will learn how to align DNA and RNA-seq data with most widely u
 
 ### NGS aligners used:
 
-- [BWA]: BWA is a software package for mapping **DNA** low-divergent sequences against a large reference genome, such as the human genome.
-- [Bowtie2]: *Bowtie 2* is an ultrafast and memory-efficient tool for aligning **DNA** sequencing reads to long reference sequences.
-- [TopHat]: *TopHat* is a fast splice junction mapper for RNA-Seq reads. It aligns **RNA-Seq** reads to mammalian-sized genomes using the ultra high-throughput short read aligner Bowtie, and then analyzes the mapping results to identify splice junctions between exons.
-- [STAR]: *STAR* aligns **RNA-seq** reads to a reference genome using uncompressed suffix arrays.
+- [BWA] : BWA is a software package for mapping **DNA** low-divergent sequences against a large reference genome, such as the human genome.
+- [Bowtie2] : *Bowtie 2* is an ultrafast and memory-efficient tool for aligning **DNA** sequencing reads to long reference sequences.
+- [TopHat] : *TopHat* is a fast splice junction mapper for RNA-Seq reads. It aligns **RNA-Seq** reads to mammalian-sized genomes using the ultra high-throughput short read aligner Bowtie, and then analyzes the mapping results to identify splice junctions between exons.
+- [STAR] : *STAR* aligns **RNA-seq** reads to a reference genome using uncompressed suffix arrays.
 
 ### Other software used in this hands-on:
-- [SAMTools]: SAM Tools **provide various utilities** for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format.
-- [dwgsim]: dwgsim can perform whole **genome simulation**.
-- [BEERS]: BEERS is a **simulation engine** for generating **RNA-Seq** data.
+- [SAMTools] : SAM Tools **provide various utilities** for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format.
+- [dwgsim] : dwgsim can perform whole **genome simulation**.
+- [BEERS] : BEERS is a **simulation engine** for generating **RNA-Seq** data.
 
 ### File formats explored:
 
