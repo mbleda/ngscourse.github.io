@@ -29,106 +29,101 @@ File formats explored:
 - VCF Variant Call Format: see [1000 Genomes][vcf-format-1000ge] and [Wikipedia][vcf-format-wikipedia] specifications.
 
 
-Data used in this practical
--------------------------------
-
-- [mirbase_mature.fa](../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa): mature micro RNAs downloaded form mirbase
-
-You can download them or copy them to your ``data`` directory for the practical
-
-<!-- clean directory
-
-    rm -r data
-    mkdir data
-    cd data
-    cp ../../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa .
--->
-
-\ 
-
-Find all data files for the course here: [COURSE_EXAMPLE_DATA](../../../COURSE_EXAMPLE_DATA)
-
-
-
-Exercise 1: Variant calling with paired-end data
+Exercise 2: Variant calling with single-end data
 ================================================================================
 
-<!-- Go to the directory where you have downoaded your data: 
+Go to the variant_calling folder in your course directory: 
 
-    cd my_visual_data_dir  
+    cd <my_course_directory>/variant_calling
 
-In the following **folder** you wil find mapped sequencing data from a CEU trio (father, mother and child) from the 1000 Genomes Project:
 
-    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/visualization/example_1
-    
-    ll
-
-These datasets contain reads only for the [GABBR1](http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000204681;r=6:29523406-29601753) gene.
--->
-
-1. Prepare reference genome: generate the BWA index
+1. Prepare reference genome: generate the fasta file index
 --------------------------------------------------------------------------------
 
-Use ``BWA`` to index the the reference genome:
+This step is no longer needed since we have already done it in [example1](http://ngscourse.github.io/COURSE_MATERIALS/variant_calling/example/010_example.html)
 
-    bwa index -a bwtsw f000-reference.fa
-
-where ``-a bwtsw`` specifies that we want to use the indexing algorithm that is capable of handling the whole human genome.
-
-
-Use ``SAMTools`` to generate the fasta file index:
-
-    samtools faidx f000-reference.fa
-
-This creates a file called f000-reference.fa.fai, with one record per line for each of the contigs in the FASTA reference file.
-
-Generate the sequence dictionary using ``Picard``:
-
-    java -jar CreateSequenceDictionary.jar REFERENCE=f000-reference.fa OUTPUT=f000-reference.dict
-
-
-2. Mark duplicates (using Picard)
+2. Prepare BAM file
 --------------------------------------------------------------------------------
 
-Run the following **Picard** command to mark duplicates:
+Go to the example1 folder:
 
-    java -jar MarkDuplicates.jar INPUT=paired_end.bam OUTPUT=paired_end_noDup.bam METRICS_FILE=metrics.txt
+    cd example2
 
-This creates a sorted BAM file called ``paired_end_noDup.bam`` with the same content as the input file, except that any duplicate reads are marked as such. It also produces a metrics file called ``metrics.txt`` containing (can you guess?) metrics.
+Add the read group tag to our BAM file using ``Picard``:
 
-Run the following **Picard** command to index the new BAM file:
+    AddOrReplaceReadGroups.jar I=f000-dna_100_high_se.bam O=f010-dna_100_high_se_fixRG.bam RGID=group2 RGLB=lib2 RGPL=illumina RGSM=sample2 RGPU=unit2
 
-    java -jar BuildBamIndex.jar INPUT=paired_end_noDup.bam
+We must sort the BAM file using ``samtools``:
 
-Q1. How many reads are removed as duplicates from the files (hint view the on-screen output from the two commands)?
-    
+    samtools sort f010-dna_100_high_se_fixRG.bam f020-dna_100_high_se_fixRG_sorted
 
-3. Local realignment around INDELS (using GATK)
+Index the BAM file:
+
+    samtools index f020-dna_100_high_se_fixRG_sorted.bam
+
+
+3. Mark duplicates (using Picard)
+--------------------------------------------------------------------------------
+
+Mark and remove duplicates:
+
+    MarkDuplicates.jar INPUT=f020-dna_100_high_se_fixRG_sorted.bam OUTPUT=f030-dna_100_high_se_fixRG_sorted_noDup.bam METRICS_FILE=metrics.txt
+
+Index the new BAM file:
+
+    BuildBamIndex.jar INPUT=f030-dna_100_high_se_fixRG_sorted_noDup.bam
+
+
+4. Local realignment around INDELS (using GATK)
 --------------------------------------------------------------------------------
 
 There are 2 steps to the realignment process:
 
-1. Create a target list of intervals which need to be realigned
+Create a target list of intervals which need to be realigned
+  
+    GenomeAnalysisTK.jar -T RealignerTargetCreator -R ../f000-reference.fa -I f030-dna_100_high_se_fixRG_sorted_noDup.bam -o f040-indelRealigner.intervals
 
-    java -jar GenomeAnalysisTK.jar -T RealignerTargetCreator -R f000-reference.fa -I paired_end_noDup.bam -known gold_indels.vcf -o forIndelRealigner.intervals
-    java -jar GenomeAnalysisTK.jar -T RealignerTargetCreator -R f000-reference.fa -I paired_end_noDup.bam -o forIndelRealigner.intervals
+Perform realignment of the target intervals
 
-2. Perform realignment of the target intervals
-
-    java -jar GenomeAnalysisTK.jar -T IndelRealigner -R reference.fa -I paired_end_noDup.bam -targetIntervals forIndelRealigner.intervals -o realigned_reads.bam 
+    GenomeAnalysisTK.jar -T IndelRealigner -R ../f000-reference.fa -I f030-dna_100_high_se_fixRG_sorted_noDup.bam -targetIntervals f040-indelRealigner.intervals \
+    -o f040-dna_100_high_se_fixRG_sorted_noDup_realigned.bam 
 
 
-4. Loading and browsing files
+5. Base quality score recalibration (using GATK)
 --------------------------------------------------------------------------------
 
-- Go to ``File`` --> ``Load from file...``  
-Select NA12878_child.bam, NA12891_dad.bam and NA12892_mom.bam
+Two steps:
 
-**Steps:**
+Analyze patterns of covariation in the sequence dataset
 
-1. Enter the name of our gene (_**GABBR1**_) in the search box and hit ``Go``.
-2. Zoom in until you find some SNPs - they might be in exons or introns.
-3. Identify at least one example of a short insertion variant and deletion arround exon 4.
-4. Load and look at the SNP track: ``File`` --> ``Load from server`` --> ``Annotations`` --> ``Variants and Repeats`` --> ``dbSNP``
+    GenomeAnalysisTK.jar -T BaseRecalibrator -R ../f000-reference.fa -I f040-dna_100_high_se_fixRG_sorted_noDup_realigned.bam -knownSites ../f000-dbSNP_chr21.vcf \  
+    -o f050-recalibration_data.table
+
+Apply the recalibration to your sequence data
+
+    GenomeAnalysisTK.jar -T PrintReads -R ../f000-reference.fa -I f040-dna_100_high_se_fixRG_sorted_noDup_realigned.bam -BQSR f050-recalibration_data.table \  
+    -o f050-dna_100_high_se_fixRG_sorted_noDup_realigned_recalibrated.bam
+
+
+6. Variant calling (using GATK - **UnifiedGenotyper**)
+--------------------------------------------------------------------------------
+
+**SNP calling**
+
+    GenomeAnalysisTK.jar -T UnifiedGenotyper -R ../f000-reference.fa -I f050-dna_100_high_se_fixRG_sorted_noDup_realigned_recalibrated.bam -glm SNP \  
+    -o f060-dna_100_high_se_snps.vcf
+
+**INDEL calling**
+
+    GenomeAnalysisTK.jar -T UnifiedGenotyper -R ../f000-reference.fa -I f050-dna_100_high_se_fixRG_sorted_noDup_realigned_recalibrated.bam -glm INDEL \  
+    -o f060-dna_100_high_se_indels.vcf
+
+
+7. Compare paired-end VCF against single-end VCF
+--------------------------------------------------------------------------------
+
+Open IGV and load a the single-end VCF we have generated in this tutorial (``f060-dna_100_high_se_snps.vcf``) and the the paired-end VCF generated in example1 (``f060-dna_100_high_pe_snps.vcf``).
+
+
 
 

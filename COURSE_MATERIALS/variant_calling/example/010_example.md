@@ -29,39 +29,31 @@ File formats explored:
 - VCF Variant Call Format: see [1000 Genomes][vcf-format-1000ge] and [Wikipedia][vcf-format-wikipedia] specifications.
 
 
-<!--
+Some previous configurations
+================================================================================
 
-Data used in this practical
--------------------------------
+Just to run GATK easier:
 
-- [mirbase_mature.fa](../../../COURSE_EXAMPLE_DATA/f010_mirbase_mature.fa): mature micro RNAs downloaded form mirbase
+    echo "alias GenomeAnalysisTK.jar='java -jar /home/Desktop/GenomeAnalysisTK-2.8-1-g932cd3a/GenomeAnalysisTK.jar'" >> ~/.bashrc
 
-You can download them or copy them to your ``data`` directory for the practical
+To run Picard easier:
 
-clean directory
-
-    rm -r data
-    mkdir data
-    cd data
-    cp ../../../../COURSE_EXAMPLE_DATA/variant_calling/example1/* .
-
-
-\ 
-
-Find all data files for the course here: [COURSE_EXAMPLE_DATA](../../../COURSE_EXAMPLE_DATA)
--->
+    echo "alias CreateSequenceDictionary.jar='java -jar /home/Desktop/picard-tools-1.108/picard-tools-1.108/CreateSequenceDictionary.jar'" >> ~/.bashrc
+    echo "alias AddOrReplaceReadGroups.jar='java -jar /home/Desktop/picard-tools-1.108/picard-tools-1.108/AddOrReplaceReadGroups.jar'" >> ~/.bashrc
+    echo "alias MarkDuplicates.jar='java -jar /home/Desktop/picard-tools-1.108/picard-tools-1.108/MarkDuplicates.jar'" >> ~/.bashrc
+    echo "alias BuildBamIndex.jar='java -jar /home/Desktop/picard-tools-1.108/picard-tools-1.108/BuildBamIndex.jar'" >> ~/.bashrc
 
 
 Exercise 1: Variant calling with paired-end data
 ================================================================================
 
-Go to the directory where you have downoaded your data: 
+Go to your course directory: 
 
-    cd my_variant_calling_directory
+    cd <my_course_directory>
 
-In the following **folder** you wil find a paired-end bam file:
+Copy the data for the tutorials:
 
-    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/variant_calling/example_1
+    cp -r /mounts/course_shares/Open_Share/variant_calling .
     ll
 
 These datasets contain reads only for the chromosome 21.
@@ -69,11 +61,6 @@ These datasets contain reads only for the chromosome 21.
 
 1. Prepare reference genome: generate the fasta file index
 --------------------------------------------------------------------------------
-
-Move to the reference directory:
-
-    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/variant_calling/
-
 
 Use ``BWA`` to index the the reference genome:
 
@@ -91,91 +78,111 @@ This creates a file called f000-reference.fa.fai, with one record per line for e
 
 Generate the sequence dictionary using ``Picard``:
 
-    java -jar CreateSequenceDictionary.jar REFERENCE=f000-reference.fa OUTPUT=f000-reference.dict
+    CreateSequenceDictionary.jar REFERENCE=f000-reference.fa OUTPUT=f000-reference.dict
 
 
-2. Mark duplicates (using Picard)
+2. Prepare BAM file
 --------------------------------------------------------------------------------
 
 Go to the example1 folder:
 
-    cd ~/ngscourse.github.io/COURSE_EXAMPLE_DATA/variant_calling/example1
+    cd example1
+
+The **read group** information is key for downstream GATK functionality. The GATK will not work without a read group tag. Make sure to enter as much metadata as you know about your data in the read group fields provided. For more information about all the possible fields in the @RG tag, take a look at the SAM specification.
+
+    AddOrReplaceReadGroups.jar I=f000-dna_100_high_pe.bam O=f010-dna_100_high_pe_fixRG.bam RGID=group1 RGLB=lib1 RGPL=illumina RGSM=sample1 RGPU=unit1
+
+We must sort and index the BAM file before processing it with Picard and GATK. To sort the bam file we use ``samtools``
+
+    samtools sort f010-dna_100_high_pe_fixRG.bam f020-dna_100_high_pe_fixRG_sorted
+
+Index the BAM file:
+
+    samtools index f020-dna_100_high_pe_fixRG_sorted.bam
+
+
+3. Mark duplicates (using Picard)
+--------------------------------------------------------------------------------
 
 Run the following **Picard** command to mark duplicates:
 
-    java -jar MarkDuplicates.jar INPUT=f000-dna_100_high_pe.bam OUTPUT=f010-dna_100_high_pe_noDup.bam METRICS_FILE=metrics.txt
+    MarkDuplicates.jar INPUT=f020-dna_100_high_pe_fixRG_sorted.bam OUTPUT=f030-dna_100_high_pe_fixRG_sorted_noDup.bam METRICS_FILE=metrics.txt
 
-This creates a sorted BAM file called ``f010-paired_end_noDup.bam`` with the same content as the input file, except that any duplicate reads are marked as such. It also produces a metrics file called ``metrics.txt`` containing (can you guess?) metrics.
+This creates a sorted BAM file called ``f030-dna_100_high_pe_fixRG_sorted_noDup.bam`` with the same content as the input file, except that any duplicate reads are marked as such. It also produces a metrics file called ``metrics.txt`` containing (can you guess?) metrics.
+
+**QUESTION:** How many reads are removed as duplicates from the files (hint view the on-screen output from the two commands)?
 
 Run the following **Picard** command to index the new BAM file:
 
-    java -jar BuildBamIndex.jar INPUT=f010-paired_end_noDup.bam
+    BuildBamIndex.jar INPUT=f030-dna_100_high_pe_fixRG_sorted_noDup.bam
 
-Q1. How many reads are removed as duplicates from the files (hint view the on-screen output from the two commands)?
-    
 
-3. Local realignment around INDELS (using GATK)
+4. Local realignment around INDELS (using GATK)
 --------------------------------------------------------------------------------
 
 There are 2 steps to the realignment process:
 
-1. Create a target list of intervals which need to be realigned
+**First**, create a target list of intervals which need to be realigned
+  
+    GenomeAnalysisTK.jar -T RealignerTargetCreator -R ../f000-reference.fa -I f030-dna_100_high_pe_fixRG_sorted_noDup.bam -o f040-indelRealigner.intervals
 
-    #java -jar GenomeAnalysisTK.jar -T RealignerTargetCreator -R f000-reference.fa -I f010-paired_end_noDup.bam -known gold_indels.vcf -o forIndelRealigner.intervals
-    java -jar GenomeAnalysisTK.jar -T RealignerTargetCreator -R f000-reference.fa -I f010-paired_end_noDup.bam -o f020-indelRealigner.intervals
+**Second**, perform realignment of the target intervals
 
-2. Perform realignment of the target intervals
+    GenomeAnalysisTK.jar -T IndelRealigner -R ../f000-reference.fa -I f030-dna_100_high_pe_fixRG_sorted_noDup.bam -targetIntervals f040-indelRealigner.intervals \
+    -o f040-dna_100_high_pe_fixRG_sorted_noDup_realigned.bam 
 
-    java -jar GenomeAnalysisTK.jar -T IndelRealigner -R f000-reference.fa -I f010-paired_end_noDup.bam -targetIntervals f020-indelRealigner.intervals -o f030-paired_and_noDup_realigned.bam 
-
-This creates a file called ``f030-paired_and_noDup_realigned.bam`` containing all the original reads, but with better local alignments in the regions that were realigned.
+This creates a file called ``f040-dna_100_high_pe_fixRG_sorted_noDup_realigned.bam`` containing all the original reads, but with better local alignments in the regions that were realigned.
 
 
-4. Base quality score recalibration (using GATK)
+5. Base quality score recalibration (using GATK)
 --------------------------------------------------------------------------------
 
-1. Analyze patterns of covariation in the sequence dataset
+Two steps:
 
-    java -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R reference.fa -I realigned_reads.bam -L 20 -knownSites dbsnp.vcf -knownSites gold_indels.vcf -o recal_data.table 
+**First**, analyze patterns of covariation in the sequence dataset
 
-This creates a GATKReport file called recal_data.grp containing several tables. These tables contain the covariation data that will be used in a later step to recalibrate the base qualities of your sequence data.
+    GenomeAnalysisTK.jar -T BaseRecalibrator -R ../f000-reference.fa -I f040-dna_100_high_pe_fixRG_sorted_noDup_realigned.bam -knownSites ../f000-dbSNP_chr21.vcf \  
+    -o f050-recalibration_data.table
 
-It is imperative that you provide the program with a set of known sites, otherwise it will refuse to run. The known sites are used to build the covariation model and estimate empirical base qualities. For details on what to do if there are no known sites available for your organism of study, please see the online GATK documentation.
+This creates a GATKReport file called ``f050-recalibration_data.table`` containing several tables. These tables contain the covariation data that will be used in a later step to recalibrate the base qualities of your sequence data.
 
-2. Do a second pass to analyze covariation remaining after recalibration
+It is imperative that you provide the program with a set of **known sites**, otherwise it will refuse to run. The known sites are used to build the covariation model and estimate empirical base qualities. For details on what to do if there are no known sites available for your organism of study, please see the online GATK documentation.
 
-    java -jar GenomeAnalysisTK.jar -T BaseRecalibrator -R reference.fa -I realigned_reads.bam -L 20 -knownSites dbsnp.vcf -knownSites gold_indels.vcf -BQSR recal_data.table -o post_recal_data.table 
+**Second**, apply the recalibration to your sequence data
 
-This creates another GATKReport file, which we will use in the next step to generate plots. Note the use of the -BQSR flag, which tells the GATK engine to perform on-the-fly recalibration based on the first recalibration data table.
+    GenomeAnalysisTK.jar -T PrintReads -R ../f000-reference.fa -I f040-dna_100_high_pe_fixRG_sorted_noDup_realigned.bam -BQSR f050-recalibration_data.table \  
+    -o f050-dna_100_high_pe_fixRG_sorted_noDup_realigned_recalibrated.bam
 
-3. Apply the recalibration to your sequence data
-
-    java -jar GenomeAnalysisTK.jar -T PrintReads -R reference.fa -I realigned_reads.bam -L 20 -BQSR recal_data.table -o recal_reads.bam
-
-This creates a file called recal_reads.bam containing all the original reads, but now with exquisitely accurate base substitution, insertion and deletion quality scores. By default, the original quality scores are discarded in order to keep the file size down. However, you have the option to retain them by adding the flag –emit_original_quals to the PrintReads command, in which case the original qualities will also be written in the file, tagged OQ.
-
-Notice how this step uses a very simple tool, PrintReads, to apply the recalibration. What’s happening here is that we are loading in the original sequence data, having the GATK engine recalibrate the base qualities on-the-fly thanks to the -BQSR flag (as explained earlier), and just using PrintReads to write out the resulting data to the new file.
+This creates a file called ``f050-dna_100_high_pe_fixRG_sorted_noDup_realigned_recalibrated.bam`` containing all the original reads, but now with exquisitely accurate base substitution, insertion and deletion quality scores. By default, the original quality scores are discarded in order to keep the file size down. However, you have the option to retain them by adding the flag ``–emit_original_quals`` to the ``PrintReads`` command, in which case the original qualities will also be written in the file, tagged OQ.
 
 
-4. Variant calling (using GATK - UnifiedGenotyper)
+6. Variant calling (using GATK - **UnifiedGenotyper**)
 --------------------------------------------------------------------------------
 
 SNPs and INDELS are called using separate instructions.
 
-1. SNP calling
+**SNP calling**
 
-    java -jar GenomeAnalysisTK.jar -T UnifiedGenotyper -R f000_reference.fa -I 7_realigned_aligned.bam -glm SNP -o 8_snp_variants.vcf
+    GenomeAnalysisTK.jar -T UnifiedGenotyper -R ../f000-reference.fa -I f050-dna_100_high_pe_fixRG_sorted_noDup_realigned_recalibrated.bam -glm SNP \  
+    -o f060-dna_100_high_pe_snps.vcf
 
-2. INDEL calling
+**INDEL calling**
 
-    java -jar GenomeAnalysisTK.jar -T UnifiedGenotyper -R 0_reference.fa -I 7_realigned_aligned.bam -glm INDEL -o 8_indel_variants.vcf
+    GenomeAnalysisTK.jar -T UnifiedGenotyper -R ../f000-reference.fa -I f050-dna_100_high_pe_fixRG_sorted_noDup_realigned_recalibrated.bam -glm INDEL \  
+    -o f060-dna_100_high_pe_indels.vcf
 
 
-5. Introduce filters in the VCF file
+7. Introduce filters in the VCF file
 --------------------------------------------------------------------------------
 
 Example: filter SNPs with low confidence calling (QD < 12.0) and flag them as "LowConf".
 
-    java -jar GenomeAnalysisTK.jar -T VariantFiltration -R 0_reference.fa -V 8_snp_variants.vcf --filterExpression "QD < 12.0" --filterName "LowConf" -o 9_snp_filtered.vcf
+    GenomeAnalysisTK.jar -T VariantFiltration -R ../f000-reference.fa -V f060-dna_100_high_pe_snps.vcf --filterExpression "QD < 12.0" --filterName "LowConf" \  
+    -o f070-dna_100_high_pe_snps_filtered.vcf
 
+The command ``--filterExpression`` will read the INFO field and check whether variants satisfy the requirement. If a variant does not satisfy your filter expression, the field FILTER will be filled with the indicated ``--filterName``. These commands can be called several times indicating different filtering expression (i.e: --filterName One --filterExpression "X < 1" --filterName Two --filterExpression "X > 2").
+
+**QUESTION:** How many "LowConf" variants have we obtained?
+
+    grep LowConf f070-dna_100_high_pe_snps_filtered.vcf | wc -l
 
