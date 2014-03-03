@@ -20,15 +20,15 @@ In this hands-on will learn how to align DNA and RNA-seq data with most widely u
 
 ### NGS aligners used:
 
-- [BWA]: BWA is a software package for mapping **DNA** low-divergent sequences against a large reference genome, such as the human genome.
-- [Bowtie2]: *Bowtie 2* is an ultrafast and memory-efficient tool for aligning **DNA** sequencing reads to long reference sequences.
-- [TopHat]: *TopHat* is a fast splice junction mapper for RNA-Seq reads. It aligns **RNA-Seq** reads to mammalian-sized genomes using the ultra high-throughput short read aligner Bowtie, and then analyzes the mapping results to identify splice junctions between exons.
-- [STAR]: *STAR* aligns **RNA-seq** reads to a reference genome using uncompressed suffix arrays.
+- [BWA] : BWA is a software package for mapping **DNA** low-divergent sequences against a large reference genome, such as the human genome.
+- [Bowtie2] : *Bowtie 2* is an ultrafast and memory-efficient tool for aligning **DNA** sequencing reads to long reference sequences.
+- [TopHat] : *TopHat* is a fast splice junction mapper for RNA-Seq reads. It aligns **RNA-Seq** reads to mammalian-sized genomes using the ultra high-throughput short read aligner Bowtie, and then analyzes the mapping results to identify splice junctions between exons.
+- [STAR] : *STAR* aligns **RNA-seq** reads to a reference genome using uncompressed suffix arrays.
 
 ### Other software used in this hands-on:
-- [SAMTools]: SAM Tools **provide various utilities** for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format.
-- [dwgsim]: dwgsim can perform whole **genome simulation**.
-- [BEERS]: BEERS is a **simulation engine** for generating **RNA-Seq** data.
+- [SAMTools] : SAM Tools **provide various utilities** for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format.
+- [dwgsim] : dwgsim can perform whole **genome simulation**.
+- [BEERS] : BEERS is a **simulation engine** for generating **RNA-Seq** data.
 
 ### File formats explored:
 
@@ -108,17 +108,29 @@ Now go to ```alignments``` folder and create to folders for *bwa* and *bowtie* t
 │   ├── bowtie2-2.2.1
 │   ├── bowtie2-2.2.1-linux-x86_64.zip
 │   ├── bwa-0.7.7
-│   └── bwa-0.7.7.tar.bz2
+│   ├── bwa-0.7.7.tar.bz2
+│   ├── tophat-2.0.10.Linux_x86_64
+│   └── tophat-2.0.10.Linux_x86_64.tar.gz
 ├── alignments
 │   ├── bowtie
 │   ├── bwa
+│   └── tophat
 ├── data
 │   ├── dna_chr21_100_high
 │   ├── dna_chr21_100_low
-│   └── Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
+│   ├── Homo_sapiens_cDNAs_chr21.fa
+│   ├── Homo_sapiens.GRCh37.75.dna.chromosome.21.fa
+│   ├── rna_chr21_100_high
+│   └── rna_chr21_150_low
 ├── samtools
-    ├── samtools-0.1.19
-    └── samtools-0.1.19.tar.bz2
+│   ├── samtools-0.1.19
+│   └── samtools-0.1.19.tar.bz2
+└── simulators
+    ├── beers.tar
+    ├── dwgsim-0.1.10
+    ├── dwgsim-0.1.10.tar.gz
+    └── reads_simulator.pl
+
 ```
 
 
@@ -258,6 +270,12 @@ And create the BAM file using SAMtools;
     
 Repeat the same steps for the **low** quality dataset.
 
+### More exercises
+
+- Try to simulate datasets with longer reads and more mutations to study which aligner behaves better
+- Test the aligner sensitivity to INDELS
+- Try BWA-MEM algorithm and compare sensitivity. The same index is valid, only one execution for the SAM file ```./bwa mem index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../../data/dna_chr21_100_low/dna_chr21_100_low.bwa.read1.fastq```
+
 
 # Exercise 2: NGS RNA-seq aligment
 
@@ -291,17 +309,66 @@ You can check that everything is allright by executing:
 
 Big information about the software and commands should be listed.
 
-**NOTE:** TopHat uses Bowtie as the aligner. You can use either Bowtie 2 (the default) or Bowtie (--bowtie1) and you will need the following Bowtie 2 (or Bowtie) programs in your PATH. Index must be created with Bowtie not TopHat.
+**NOTE:** TopHat uses Bowtie as the aligner. You can use either Bowtie 2 (the default) or Bowtie (--bowtie1) and you will need the following Bowtie 2 (or Bowtie) programs in your PATH. Index must be created with Bowtie not TopHat. So, copy Bowtie2 into ~/bin:
+    
+    cd bowtie2-2.2.1   (bowtie 2.2 does not work)
+    cp bowtie* ~/bin
+
+
+##### Aligning in SE and PE modes
+
+To align in SE mode:
+
+    ./tophat2 -o ~/courses/cambridge_mda14/alignments/tophat/rna_chr21_100_high_se ~/courses/cambridge_mda14/aligners/bowtie2-2.2.1/index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ~/courses/cambridge_mda14/data/rna_chr21_100_high/rna_chr21_100_high.bwa.read1.fastq
+
+And for PE:
+
+    ./tophat2 -o ~/courses/cambridge_mda14/alignments/tophat/rna_chr21_100_high_pe/ ~/courses/cambridge_mda14/aligners/bowtie2-2.2.1/index/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ~/courses/cambridge_mda14/data/rna_chr21_100_high/rna_chr21_100_high.bwa.read1.fastq ~/courses/cambridge_mda14/data/rna_chr21_100_high/rna_chr21_100_high.bwa.read2.fastq
+
+Align the rna dataset of 150bp with low quality.
+
+
+### STAR and MapSplice2
+[STAR] and [MapSplice2] are two others interesting RNA-seq aligners. [STAR] offer a great performance while still have good sensitivity. [MapSplice2] shows usually a better sensitivity but is several times slower.
+
+##### STAR installation
+STAR comes compiled for Linux, you only have to download the *tarball*:
+
+    tar -zxvf STAR_2.3.0e.Linux_x86_64_static.tgz
+
+Read the documentation and try to align the simulated dataset.
+
+
+##### MapSplice2 installation
+MapSplice must be unizpped and compiled:
+
+    unzip MapSplice-v2.1.6.zip
+    cd MapSplice-v2.1.6
+    make
+
+Read the documentation and try to align the simulated dataset.
 
 
 # Simulating NGS datasets
 
 ### DNA
+Download [dwgsim] from http://sourceforge.net/projects/dnaa/files/ to the *working_directory* and uncompress it and compile it:
 
-    ./dwgsim-0.1.11/dwgsim -1 100 -2 100 -y 0 -N 1000000 ../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../data/dna_chr21_100_high/dna_chr21_100_high
-    ./dwgsim-0.1.11/dwgsim -1 100 -2 100 -y 0 -N 1000000 -r 0.01 ../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../data/dna_chr21_100_low/dna_chr21_100_low
+    tar -zxvf dwgsim-0.1.10.tar.gz
+    cd dwgsim-0.1.10
+    make
+
+Check options by executing:
+
+    ./dwgsim
+
+Then you can simulate 2 million reads of 150bp with a 2% if mutation executing:
+
+    ./dwgsim-0.1.11/dwgsim -1 150 -2 150 -y 0 -N 2000000 -r 0.02 ../data/Homo_sapiens.GRCh37.75.dna.chromosome.21.fa ../data/dna_chr21_100_low/dna_chr21_100_verylow
 
 
 ### RNA-seq
+[BEERS] is a perl-based program, no compilation is needed, just download it from here http://www.cbil.upenn.edu/BEERS and uncompress it:
 
+    tar xvf beers.tar
 

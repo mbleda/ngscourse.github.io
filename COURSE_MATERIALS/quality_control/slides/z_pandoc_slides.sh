@@ -14,6 +14,8 @@ beamer_template="../../../course_commons/beamer_template_for_slides"
 
 mkdir aux
 
+rm $outfile.pdf
+
 pandoc -S -f markdown -t beamer -o aux/slides.tex $infile.md
 
 ##properly scale images

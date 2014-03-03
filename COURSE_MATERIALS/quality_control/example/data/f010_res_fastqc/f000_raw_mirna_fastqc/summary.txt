@@ -1,0 +1,11 @@
+PASS	Basic Statistics	f000_raw_mirna.fastq
+FAIL	Per base sequence quality	f000_raw_mirna.fastq
+WARN	Per sequence quality scores	f000_raw_mirna.fastq
+FAIL	Per base sequence content	f000_raw_mirna.fastq
+FAIL	Per base GC content	f000_raw_mirna.fastq
+FAIL	Per sequence GC content	f000_raw_mirna.fastq
+PASS	Per base N content	f000_raw_mirna.fastq
+WARN	Sequence Length Distribution	f000_raw_mirna.fastq
+FAIL	Sequence Duplication Levels	f000_raw_mirna.fastq
+FAIL	Overrepresented sequences	f000_raw_mirna.fastq
+FAIL	Kmer Content	f000_raw_mirna.fastq

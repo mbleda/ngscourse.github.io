@@ -1,0 +1,11 @@
+PASS	Basic Statistics	f020_mirna_trim4.fastq
+FAIL	Per base sequence quality	f020_mirna_trim4.fastq
+FAIL	Per sequence quality scores	f020_mirna_trim4.fastq
+FAIL	Per base sequence content	f020_mirna_trim4.fastq
+FAIL	Per base GC content	f020_mirna_trim4.fastq
+WARN	Per sequence GC content	f020_mirna_trim4.fastq
+PASS	Per base N content	f020_mirna_trim4.fastq
+FAIL	Sequence Length Distribution	f020_mirna_trim4.fastq
+FAIL	Sequence Duplication Levels	f020_mirna_trim4.fastq
+FAIL	Overrepresented sequences	f020_mirna_trim4.fastq
+FAIL	Kmer Content	f020_mirna_trim4.fastq
