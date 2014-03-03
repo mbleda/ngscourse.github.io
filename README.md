@@ -2,7 +2,7 @@ NGS Data Analysis Course
 ================================================================================
 
 Day 1
-
+-----
 
 ### Introduction to Linux systems
 - [Slides](COURSE_MATERIALS/alignment/slides/presentation_mda14.pdf)
@@ -12,11 +12,15 @@ Day 1
 
 ### Quality control for NGS raw data
 
-- [Slides](COURSE_MATERIALS/rna-seq/slides/slides.pdf) - [Practical exercise 1: fastQC](COURSE_MATERIALS/rna-seq/examples/example.html) - Practical exercise 2: cutadapt
+- [Slides](COURSE_MATERIALS/quality_control/slides/slides.pdf) - [Practical exercise](COURSE_MATERIALS/quality_control/examples/example.html)
 
 
 ### Mapping reads to a reference genome
 - [Slides](COURSE_MATERIALS/alignment/slides/ngs-read-mapping-imedina-mda14.pdf) - [Practical exercise](http://ngscourse.github.io/COURSE_MATERIALS/alignment/example/example.html)
+
+
+Day 2
+-----
 
 ### Visualization of NGS data
 
@@ -27,9 +31,11 @@ Day 1
 
 ### Variant annotation
 
+
+Day 3
+-----
+
 ### Association studies
-
-
 
 ### RNA-Seq data processing
 
