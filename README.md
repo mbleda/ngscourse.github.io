@@ -1,7 +1,7 @@
 NGS Data Analysis Course
 ================================================================================
 
-Example data for the exercises are available  [here](https://github.com/ngscourse/ngscourse.github.io/tree/master/COURSE_EXAMPLE_DATA)
+Example data for the exercises are available [HERE](https://github.com/ngscourse/ngscourse.github.io/tree/master/COURSE_EXAMPLE_DATA)
 
 
 Day 1
