@@ -1,11 +1,10 @@
-% [NGS data analysis course](http://ngscourse.github.io/)
-% __Title of the practical__
-% _(updated 23-02-2014)_
+e% [NGS data analysis course](http://ngscourse.github.io/)
+% __Variant annotation__
+% _(updated 28-02-2014)_
 
 <!-- COMMON LINKS HERE -->
 
-[fastqc]: http://www.bioinformatics.babraham.ac.uk/projects/fastqc/ "notes on hover"
-[bwa]: http://bio-bwa.sourceforge.net/ "notes BWA"
+[HPG-Variant]: http://wiki.opencb.org/projects/hpg/doku.php?id=variant:overview "HPG Variant"
 
 
 Preliminaries
@@ -15,16 +14,13 @@ Preliminaries
 Software used in this practical:
 --------------------------------
 
-- [FastQC] : (SPACE BEFORE THE COLON) Explain ...
-- [BWA software][BWA] : Explain with a sentence.
+- [HPG-Variant][HPG-Variant] : a complete suite of tools to work with genomic variation data, from VCF tools to variant profiling or genomic statistics.
 
 
 File formats explored:
 ----------------------
 
-FastQ:
-
-- [Wikipedia](http://en.wikipedia.org/wiki/FASTQ_format)
+- [VCF]()
 - more
 
 
