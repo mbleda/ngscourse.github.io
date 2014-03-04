@@ -20,13 +20,13 @@ Software used in this practical:
 File formats explored:
 ----------------------
 
-- VCF Variant Call Format: see [1000 Genomes][vcf-format-1000ge] and [Wikipedia][vcf-format-wikipedia] specifications.
+- VCF Variant Call Format
 
 
 Some previous configurations
 ================================================================================
 
-Download [HPG-Variant] software from http://wiki.opencb.org/projects/hpg/doku.php?id=variant:downloads
+Download [HPG-Variant] software from [http://wiki.opencb.org/projects/hpg/doku.php?id=variant:downloads]
 
 Extract the file in your desktop.
 
