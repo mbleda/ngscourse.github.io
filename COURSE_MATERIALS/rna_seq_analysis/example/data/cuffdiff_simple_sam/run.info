@@ -1,0 +1,5 @@
+param	value
+cmd_line	cuffdiff -o cuffdiff_simple_sam f005_genome_annotation.gtf f030_T1.sam f030_C1.sam 
+version	2.1.1
+SVN_revision	4046M
+boost_version	104900

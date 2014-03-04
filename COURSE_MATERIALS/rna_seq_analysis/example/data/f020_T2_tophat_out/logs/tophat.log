@@ -1,0 +1,43 @@
+
+[2014-03-04 20:00:09] Beginning TopHat run (v2.0.10)
+-----------------------------------------------
+[2014-03-04 20:00:09] Checking for Bowtie
+		  Bowtie version:	 2.1.0.0
+[2014-03-04 20:00:09] Checking for Samtools
+		Samtools version:	 0.1.19.0
+[2014-03-04 20:00:09] Checking for Bowtie index files (genome)..
+[2014-03-04 20:00:09] Checking for reference FASTA file
+	Warning: Could not find FASTA file f001_bowtie_index.fa
+[2014-03-04 20:00:09] Reconstituting reference FASTA file from Bowtie index
+  Executing: /home/dmontaner/bin/NGS/bowtie2-2.1.0/bowtie2-inspect f001_bowtie_index > f020_T2_tophat_out/tmp/f001_bowtie_index.fa
+[2014-03-04 20:00:11] Generating SAM header for f001_bowtie_index
+[2014-03-04 20:00:11] Preparing reads
+	 left reads: min. length=100, max. length=100, 20000 kept reads (0 discarded)
+	right reads: min. length=100, max. length=100, 20000 kept reads (0 discarded)
+[2014-03-04 20:00:11] Mapping left_kept_reads to genome f001_bowtie_index with Bowtie2 
+[2014-03-04 20:00:15] Mapping left_kept_reads_seg1 to genome f001_bowtie_index with Bowtie2 (1/4)
+[2014-03-04 20:00:15] Mapping left_kept_reads_seg2 to genome f001_bowtie_index with Bowtie2 (2/4)
+[2014-03-04 20:00:15] Mapping left_kept_reads_seg3 to genome f001_bowtie_index with Bowtie2 (3/4)
+[2014-03-04 20:00:16] Mapping left_kept_reads_seg4 to genome f001_bowtie_index with Bowtie2 (4/4)
+[2014-03-04 20:00:16] Mapping right_kept_reads to genome f001_bowtie_index with Bowtie2 
+[2014-03-04 20:00:20] Mapping right_kept_reads_seg1 to genome f001_bowtie_index with Bowtie2 (1/4)
+[2014-03-04 20:00:20] Mapping right_kept_reads_seg2 to genome f001_bowtie_index with Bowtie2 (2/4)
+[2014-03-04 20:00:20] Mapping right_kept_reads_seg3 to genome f001_bowtie_index with Bowtie2 (3/4)
+[2014-03-04 20:00:21] Mapping right_kept_reads_seg4 to genome f001_bowtie_index with Bowtie2 (4/4)
+[2014-03-04 20:00:21] Searching for junctions via segment mapping
+[2014-03-04 20:00:23] Retrieving sequences for splices
+[2014-03-04 20:00:24] Indexing splices
+[2014-03-04 20:00:24] Mapping left_kept_reads_seg1 to genome segment_juncs with Bowtie2 (1/4)
+[2014-03-04 20:00:24] Mapping left_kept_reads_seg2 to genome segment_juncs with Bowtie2 (2/4)
+[2014-03-04 20:00:24] Mapping left_kept_reads_seg3 to genome segment_juncs with Bowtie2 (3/4)
+[2014-03-04 20:00:24] Mapping left_kept_reads_seg4 to genome segment_juncs with Bowtie2 (4/4)
+[2014-03-04 20:00:24] Joining segment hits
+[2014-03-04 20:00:26] Mapping right_kept_reads_seg1 to genome segment_juncs with Bowtie2 (1/4)
+[2014-03-04 20:00:26] Mapping right_kept_reads_seg2 to genome segment_juncs with Bowtie2 (2/4)
+[2014-03-04 20:00:26] Mapping right_kept_reads_seg3 to genome segment_juncs with Bowtie2 (3/4)
+[2014-03-04 20:00:26] Mapping right_kept_reads_seg4 to genome segment_juncs with Bowtie2 (4/4)
+[2014-03-04 20:00:26] Joining segment hits
+[2014-03-04 20:00:27] Reporting output tracks
+-----------------------------------------------
+[2014-03-04 20:00:29] A summary of the alignment counts can be found in f020_T2_tophat_out/align_summary.txt
+[2014-03-04 20:00:29] Run complete: 00:00:20 elapsed

@@ -1,181 +1,65 @@
-% Main Title of the Presentation
+% RNA-Seq Data Analysis
 % [NGS Data Analysis Course](http://ngscourse.github.io/)
-% (updated 22-02-2014)
+% (updated 04-03-2014)
 
 
-Some syntax
+Links
 ================================================================================
 
-[See Pandoc markdown syntax here](http://johnmacfarlane.net/pandoc/demo/example9/pandocs-markdown.html)
+http://cufflinks.cbcb.umd.edu/manual.html#cuffdiff_output
 
-\ 
-
-_italics_
-
-__bold__
-
-<!-- 
-some comment here
--->
-
-    verbatim
-
-No break paragraph
-like this.
-
-But with 2 spaces   
-at the end of the line.
-
-
-vertical
-
-\ 
-
-space 
-
-
-Slide with bullets
+RPKM
 ================================================================================
 
-- one
-- two
-- three
-    - and a second level
-	- and more ...
+FPKM
 
-1. ONE
-2. TWO
-3. THREE
-
-
-Slide with subsections
+input
 ================================================================================
 
-Subsection one
---------------
+has to be SAM not BAM
 
-- something here
-- more here
-
-Subsection two
---------------
-
-    verbatim here
-	more
+Cuffdiff Input
 
 
-Slide with hyperlinks
+
+
+Cuffdiff Output
 ================================================================================
 
-<http://ngscourse.github.io>
+<Cuffdiff Output>Cuffdiff Output
 
-[Follow the link](https://github.com)  
+- isoforms
+- genes
+- cds
+- 
+- 
 
-[Follow the link](https://github.com "Some comment here for the HTML _on hover_")  
+- isoforms: Transcripts
+- genes: Gene
+- cds: Coding sequence
+- tss: Primary transcript
 
-
-Reusable Link
--------------
-
-[readme]:https://github.com/ngscourse/ngscourse.github.io/blob/master/README.md "this goes to the main readme"
-
-[readme]
-
-[Readme]
-
-[README]
-
-[go to the readme][readme]
-
-
-Big Image
+Cuffdiff Output II
 ================================================================================
 
-![caption here: do not use it](images/smile)
+
+FPKM tracking files
+-------------------
+FPKM of each transcript, primary transcript, and gene in each sample. 
+
+Primary transcript and gene FPKMs are computed by summing the FPKMs of transcripts in each primary transcript group or gene group. ????
+
+The results are output in FPKM tracking files in the format described here. There are four FPKM tracking files:
 
 
-Small Image (PNG)
-================================================================================
+Count tracking files
+-----------------------
+estimate of the number of __fragments__ that originated from each transcript
 
-![](images/small)
-
-
-Square Image
-================================================================================
-
-![](images/square)
-
-
-Horizontal image
-================================================================================
-
-![](images/horizontal)
-
-
-Vertical image
-================================================================================
-
-![](images/vertical)
-
-
-SCALED image
-================================================================================
-
-\centerline{\includegraphics[scale=0.1]{images/smile}}
-
-use _proportions_
-
-
-Maths
-================================================================================
-
-As in latex $X = Y$ inside the text 
-
-An equation:
-
-$$f(x)=\sum_{n=0}^\infty\frac{f^{(n)}(a)}{n!}(x-a)^n$$
+primary transcript, and gene in each sample. Primary transcript and gene counts are computed by summing the counts of transcripts in each primary transcript group or gene group. The results are output in count tracking files in the format described here. There are four Count tracking files:
 
 
 
-Slide with two columns
-================================================================================
-
-\begin{columns}\begin{column}{0.6\textwidth}\center
-
-  Text and Images
-
-  here
-
-  But markdown is not working
-
-  Hast to be \LaTeX
-
-  - set relative sizes
-  - of the columns 
-
-\end{column}\begin{column}{0.4\textwidth}\center
-
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{images/smile}
-
-\end{column}\end{columns}
-
-Tables
-================================================================================
-
-Not working at the moment
-
-<!--
-
-una  dos
----  ---
-  1    2
-  3    4
-  5    6
-
--------     ------ ----------   -------
-     12     12        12             12
-    123     123       123           123
-      1     1          1              1
--------     ------ ----------   -------
-
--->
+Differential expression tests
+-----------------------------
+This tab delimited file lists the results of differential expression testing between samples for spliced transcripts, primary transcripts, genes, and coding sequences. For each pair of samples x and y, four files are created

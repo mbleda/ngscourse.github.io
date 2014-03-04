@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Title of the practical" />
+  <title>NGS data analysis course</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="../../../course_commons/css_template_for_examples.css" type="text/css" />
+</head>
+<body>
+<div id="header">
+<h1 class="title"><a href="http://ngscourse.github.io/">NGS data analysis course</a></h1>
+<h2 class="author"><strong>Title of the practical</strong></h2>
+<h3 class="date"><em>(updated 23-02-2014)</em></h3>
+</div>
+<!-- COMMON LINKS HERE -->
+
+<p>http://samstat.sourceforge.net/#install</p>
+<h1 id="exercise">Exercise</h1>
+<p>Create a new directory for the exercise and copy the raw data to it:</p>
+<!-- clean directory
+    rm -r data
+-->
+
+<pre><code>mkdir data
+cd data
+cp Path_To_Your/COURSE_EXAMPLE_DATA/reference_genome/f000_genome_sequence.fa .     #copy the reference genome
+cp Path_To_Your/COURSE_EXAMPLE_DATA/reference_genome/f005_genome_annotation.gtf .  #copy the annotation for the genome
+cp Path_To_Your/COURSE_EXAMPLE_DATA/rna_seq/* .  # copy the reads</code></pre>
+<!--
+    cp ../../../../COURSE_EXAMPLE_DATA/reference_genome/f000_genome_sequence.fa .
+    cp ../../../../COURSE_EXAMPLE_DATA/reference_genome/f005_genome_annotation.gtf .
+    cp ../../../../COURSE_EXAMPLE_DATA/rna_seq/* .
+-->
+
+<p>The final <strong>dot</strong> in the lines above means “here”, in the working directory. It is neccesary to write it.</p>
+<h2 id="map-against-the-reference-genome-using-bowtie2">Map against the reference genome using bowtie2</h2>
+<p>Fist we need to <strong>build an index</strong> for bowtie:</p>
+<pre><code>bowtie2-build f000_genome_sequence.fa f001_bowtie_index</code></pre>
+<p>And now we can run the <strong>alignments</strong> for the <strong>paired end</strong> files:</p>
+<pre><code>tophat2 -o f020_C1_tophat_out   f001_bowtie_index   f010_C1_read1.fastq,f010_C1_read2.fastq 
+
+tophat2 --read-mismatches 2 --read-gap-length 2 -r 300 -o f020_C1_tophat_out   f001_bowtie_index   f010_C1_read1.fastq,f010_C1_read2.fastq 
+
+tophat2 --read-mismatches 2 --read-gap-length 2 -r 300 -o f020_C1_tophat_out   f001_bowtie_index   f010_C1_read1.fastq f010_C1_read2.fastq 
+tophat2 --read-mismatches 2 --read-gap-length 2 -r 300 -o f020_C2_tophat_out   f001_bowtie_index   f010_C2_read1.fastq  f010_C2_read2.fastq 
+tophat2 --read-mismatches 2 --read-gap-length 2 -r 300 -o f020_C3_tophat_out   f001_bowtie_index   f010_C3_read1.fastq  f010_C3_read2.fastq 
+
+tophat2 --read-mismatches 2 --read-gap-length 2 -r 300 -o f020_T1_tophat_out   f001_bowtie_index   f010_T1_read1.fastq  f010_T1_read2.fastq 
+tophat2 --read-mismatches 2 --read-gap-length 2 -r 300 -o f020_T2_tophat_out   f001_bowtie_index   f010_T2_read1.fastq  f010_T2_read2.fastq 
+tophat2 --read-mismatches 2 --read-gap-length 2 -r 300 -o f020_T3_tophat_out   f001_bowtie_index   f010_T3_read1.fastq  f010_T3_read2.fastq </code></pre>
+<!-- Use [samtools] Convert to SAM (text file) in order to explore them: -->
+
+<!--     samtools view f020_tophat_out_case/accepted_hits.bam > f025_accepted_case.sam -->
+<!--     samtools view f020_tophat_out_cont/accepted_hits.bam > f025_accepted_cont.sam -->
+
+
+<pre><code>samtools view f020_C1_tophat_out/accepted_hits.bam &gt; f025_accepted_C1.sam
+samtools view f020_C2_tophat_out/accepted_hits.bam &gt; f025_accepted_C2.sam
+samtools view f020_C3_tophat_out/accepted_hits.bam &gt; f025_accepted_C3.sam
+
+samtools view f020_T1_tophat_out/accepted_hits.bam &gt; f025_accepted_T1.sam
+samtools view f020_T2_tophat_out/accepted_hits.bam &gt; f025_accepted_T2.sam
+samtools view f020_T3_tophat_out/accepted_hits.bam &gt; f025_accepted_T3.sam
+
+
+
+wc -l *.sam</code></pre>
+<!-- Explore the first 2 lines of the SAM file -->
+
+<!--     head -n 2 f025_accepted_case.sam -->
+    
+
+<!-- Find out the original reads in the fastq files: -->
+
+<!--     grep "_436_38_1_0_0_0_1:0:0_1:0:0_0" f010* -->
+
+<!-- See the sequence of the first read: -->
+
+<!--     grep -A 2 "_436_38_1_0_0_0_1:0:0_1:0:0_0" f010* -->
+
+
+<!-- and compare them with the corresponding alignments in the SAM file: -->
+
+<!--     grep "_436_38_1_0_0_0_1:0:0_1:0:0_0" f025_accepted_case.sam -->
+
+
+<h2 id="differential-expression-using-cuffdiff">Differential expression using Cuffdiff</h2>
+<p>Using the information in the GTF file:</p>
+<pre><code>cuffdiff -o f030_cuffdiff_out f005_genome_annotation.gtf f020_T3_tophat_out/accepted_hits.bam f020_C2_tophat_out/accepted_hits.bam
+    
+cuffdiff -o f030_cuffdiff_out_sev f005_genome_annotation.gtf f020_T1_tophat_out/accepted_hits.bam f020_T2_tophat_out/accepted_hits.bam f020_T3_tophat_out/accepted_hits.bam f020_C1_tophat_out/accepted_hits.bam f020_C2_tophat_out/accepted_hits.bam f020_C3_tophat_out/accepted_hits.bam</code></pre>
+<p>f020_tophat_out_case/accepted_hits.bam f020_tophat_out_cont/accepted_hits.bam</p>
+<p>Explore the results.</p>
+</body>
+</html>
