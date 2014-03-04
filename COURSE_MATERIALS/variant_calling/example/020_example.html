@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Variant calling" />
+  <title>NGS data analysis course</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="../../../course_commons/css_template_for_examples.css" type="text/css" />
+</head>
+<body>
+<div id="header">
+<h1 class="title"><a href="http://ngscourse.github.io/">NGS data analysis course</a></h1>
+<h2 class="author"><strong>Variant calling</strong></h2>
+<h3 class="date"><em>(updated 28-02-2014)</em></h3>
+</div>
+<!-- COMMON LINKS HERE -->
+
+<h1 id="preliminaries">Preliminaries</h1>
+<h2 id="software-used-in-this-practical">Software used in this practical:</h2>
+<ul>
+<li><a href="http://bio-bwa.sourceforge.net/" title="BWA">BWA</a> : BWA is a software package for mapping low-divergent sequences against a large reference genome, such as the human genome.</li>
+<li><a href="http://samtools.sourceforge.net/" title="samtools">SAMTools</a> : SAM Tools provide various utilities for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format.</li>
+<li><a href="http://picard.sourceforge.net/" title="Picard">Picard</a> : Picard comprises Java-based command-line utilities that manipulate SAM files, and a Java API (SAM-JDK) for creating new programs that read and write SAM files.</li>
+<li>[GATK] : (Genome Analysis Toolkit): A package to analyze next-generation re-sequencing data, primary focused on variant discovery and genotyping.</li>
+</ul>
+<h2 id="file-formats-explored">File formats explored:</h2>
+<ul>
+<li><a href="http://samtools.sourceforge.net/SAMv1.pdf">SAM</a></li>
+<li><a href="http://www.broadinstitute.org/igv/bam">BAM</a></li>
+<li>VCF Variant Call Format: see [1000 Genomes][vcf-format-1000ge] and [Wikipedia][vcf-format-wikipedia] specifications.</li>
+</ul>
+<h1 id="exercise-2-variant-calling-with-single-end-data">Exercise 2: Variant calling with single-end data</h1>
+<p>Go to the variant_calling folder in your course directory:</p>
+<pre><code>cd &lt;my_course_directory&gt;/variant_calling</code></pre>
+<h2 id="prepare-reference-genome-generate-the-fasta-file-index">1. Prepare reference genome: generate the fasta file index</h2>
+<p>This step is no longer needed since we have already done it in <a href="http://ngscourse.github.io/COURSE_MATERIALS/variant_calling/example/010_example.html">example1</a></p>
+<h2 id="prepare-bam-file">2. Prepare BAM file</h2>
+<p>Go to the example1 folder:</p>
+<pre><code>cd example2</code></pre>
+<p>Add the read group tag to our BAM file using <code>Picard</code>:</p>
+<pre><code>AddOrReplaceReadGroups.jar I=f000-dna_100_high_se.bam O=f010-dna_100_high_se_fixRG.bam RGID=group2 RGLB=lib2 RGPL=illumina RGSM=sample2 RGPU=unit2</code></pre>
+<p>We must sort the BAM file using <code>samtools</code>:</p>
+<pre><code>samtools sort f010-dna_100_high_se_fixRG.bam f020-dna_100_high_se_fixRG_sorted</code></pre>
+<p>Index the BAM file:</p>
+<pre><code>samtools index f020-dna_100_high_se_fixRG_sorted.bam</code></pre>
+<h2 id="mark-duplicates-using-picard">3. Mark duplicates (using Picard)</h2>
+<p>Mark and remove duplicates:</p>
+<pre><code>MarkDuplicates.jar INPUT=f020-dna_100_high_se_fixRG_sorted.bam OUTPUT=f030-dna_100_high_se_fixRG_sorted_noDup.bam METRICS_FILE=metrics.txt</code></pre>
+<p>Index the new BAM file:</p>
+<pre><code>BuildBamIndex.jar INPUT=f030-dna_100_high_se_fixRG_sorted_noDup.bam</code></pre>
+<h2 id="local-realignment-around-indels-using-gatk">4. Local realignment around INDELS (using GATK)</h2>
+<p>There are 2 steps to the realignment process:</p>
+<p>Create a target list of intervals which need to be realigned</p>
+<pre><code>GenomeAnalysisTK.jar -T RealignerTargetCreator -R ../f000-reference.fa -I f030-dna_100_high_se_fixRG_sorted_noDup.bam -o f040-indelRealigner.intervals</code></pre>
+<p>Perform realignment of the target intervals</p>
+<pre><code>GenomeAnalysisTK.jar -T IndelRealigner -R ../f000-reference.fa -I f030-dna_100_high_se_fixRG_sorted_noDup.bam -targetIntervals f040-indelRealigner.intervals \
+-o f040-dna_100_high_se_fixRG_sorted_noDup_realigned.bam </code></pre>
+<h2 id="base-quality-score-recalibration-using-gatk">5. Base quality score recalibration (using GATK)</h2>
+<p>Two steps:</p>
+<p>Analyze patterns of covariation in the sequence dataset</p>
+<pre><code>GenomeAnalysisTK.jar -T BaseRecalibrator -R ../f000-reference.fa -I f040-dna_100_high_se_fixRG_sorted_noDup_realigned.bam -knownSites ../f000-dbSNP_chr21.vcf \  
+-o f050-recalibration_data.table</code></pre>
+<p>Apply the recalibration to your sequence data</p>
+<pre><code>GenomeAnalysisTK.jar -T PrintReads -R ../f000-reference.fa -I f040-dna_100_high_se_fixRG_sorted_noDup_realigned.bam -BQSR f050-recalibration_data.table \  
+-o f050-dna_100_high_se_fixRG_sorted_noDup_realigned_recalibrated.bam</code></pre>
+<h2 id="variant-calling-using-gatk---unifiedgenotyper">6. Variant calling (using GATK - <strong>UnifiedGenotyper</strong>)</h2>
+<p><strong>SNP calling</strong></p>
+<pre><code>GenomeAnalysisTK.jar -T UnifiedGenotyper -R ../f000-reference.fa -I f050-dna_100_high_se_fixRG_sorted_noDup_realigned_recalibrated.bam -glm SNP \  
+-o f060-dna_100_high_se_snps.vcf</code></pre>
+<p><strong>INDEL calling</strong></p>
+<pre><code>GenomeAnalysisTK.jar -T UnifiedGenotyper -R ../f000-reference.fa -I f050-dna_100_high_se_fixRG_sorted_noDup_realigned_recalibrated.bam -glm INDEL \  
+-o f060-dna_100_high_se_indels.vcf</code></pre>
+<h2 id="compare-paired-end-vcf-against-single-end-vcf">7. Compare paired-end VCF against single-end VCF</h2>
+<p>Open IGV and load a the single-end VCF we have generated in this tutorial (<code>f060-dna_100_high_se_snps.vcf</code>) and the the paired-end VCF generated in example1 (<code>f060-dna_100_high_pe_snps.vcf</code>).</p>
+</body>
+</html>
