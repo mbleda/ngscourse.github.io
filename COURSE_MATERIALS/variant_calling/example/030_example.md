@@ -7,7 +7,7 @@
 [BWA]: http://bio-bwa.sourceforge.net/ "BWA"
 [SAMTools]: http://samtools.sourceforge.net/ "samtools"
 [Picard]: http://picard.sourceforge.net/ "Picard"
-[gatk-site]: http://www.broadinstitute.org/gatk/ "GATK"
+[MuTect]: http://www.broadinstitute.org/cancer/cga/mutect_download "MuTect"
 
 Preliminaries
 ================================================================================
@@ -18,7 +18,7 @@ Software used in this practical:
 - [BWA] : BWA is a software package for mapping low-divergent sequences against a large reference genome, such as the human genome.
 - [SAMTools] : SAM Tools provide various utilities for manipulating alignments in the SAM format, including sorting, merging, indexing and generating alignments in a per-position format.
 - [Picard] : Picard comprises Java-based command-line utilities that manipulate SAM files, and a Java API (SAM-JDK) for creating new programs that read and write SAM files.
-- [GATK] : (Genome Analysis Toolkit): A package to analyze next-generation re-sequencing data, primary focused on variant discovery and genotyping.
+- [MuTect] : method developed at the Broad Institute for the reliable and accurate identification of somatic point mutations in next generation sequencing data of cancer genomes.
 
 
 File formats explored:
@@ -28,102 +28,51 @@ File formats explored:
 - [BAM](http://www.broadinstitute.org/igv/bam)
 - VCF Variant Call Format: see [1000 Genomes][vcf-format-1000ge] and [Wikipedia][vcf-format-wikipedia] specifications.
 
-
-Exercise 2: Variant calling with single-end data
+Some previous configurations
 ================================================================================
 
-Go to the variant_calling folder in your course directory: 
+Download MuTect software from http://www.broadinstitute.org/cancer/cga/mutect_download
 
-    cd <my_course_directory>/variant_calling
+You need to register before downloading. Extract the file in your desktop.
 
 
-1. Prepare reference genome: generate the fasta file index
---------------------------------------------------------------------------------
+Just to run MuTect easier:
 
-This step is no longer needed since we have already done it in [example1](http://ngscourse.github.io/COURSE_MATERIALS/variant_calling/example/010_example.html)
+    echo "alias MuTect.jar='java -jar /home/Desktop/muTect-1.1.4-bin/muTect-1.1.4.jar'" >> ~/.bashrc
+    source ~/.bashrc
 
-2. Prepare BAM file
+
+Exercise 3: Somatic calling
+================================================================================
+
+1. Prepare BAM file
 --------------------------------------------------------------------------------
 
 Go to the example1 folder:
 
-    cd example2
+    cd example3
 
-Add the read group tag to our BAM file using ``Picard``:
+Add read groups:
 
-    AddOrReplaceReadGroups.jar I=f000-dna_100_high_se.bam O=f010-dna_100_high_se_fixRG.bam RGID=group2 RGLB=lib2 RGPL=illumina RGSM=sample2 RGPU=unit2
+    AddOrReplaceReadGroups.jar I=f000-normal.bam O=f010-normal_fixRG.bam RGID=group1 RGLB=lib1 RGPL=illumina RGSM=sample1 RGPU=unit1
+    AddOrReplaceReadGroups.jar I=f000-tumor.bam O=f010-tumor_fixRG.bam RGID=group2 RGLB=lib1 RGPL=illumina RGSM=sample1 RGPU=unit2
 
-We must sort the BAM file using ``samtools``:
+Sort:
 
-    samtools sort f010-dna_100_high_se_fixRG.bam f020-dna_100_high_se_fixRG_sorted
+    samtools sort f010-normal_fixRG.bam f020-normal_fixRG_sorted
+    samtools sort f010-tumor_fixRG.bam f020-tumor_fixRG_sorted
 
 Index the BAM file:
 
-    samtools index f020-dna_100_high_se_fixRG_sorted.bam
+    samtools index f020-normal_fixRG_sorted.bam
+    samtools index f020-tumor_fixRG_sorted.bam
 
 
-3. Mark duplicates (using Picard)
+2. Somatic calling
 --------------------------------------------------------------------------------
 
-Mark and remove duplicates:
+For brevity, we are not including BAM preprocessing steps. However, in real analysis it is recommended to include them.
 
-    MarkDuplicates.jar INPUT=f020-dna_100_high_se_fixRG_sorted.bam OUTPUT=f030-dna_100_high_se_fixRG_sorted_noDup.bam METRICS_FILE=metrics.txt
-
-Index the new BAM file:
-
-    BuildBamIndex.jar INPUT=f030-dna_100_high_se_fixRG_sorted_noDup.bam
-
-
-4. Local realignment around INDELS (using GATK)
---------------------------------------------------------------------------------
-
-There are 2 steps to the realignment process:
-
-Create a target list of intervals which need to be realigned
-  
-    GenomeAnalysisTK.jar -T RealignerTargetCreator -R ../f000-reference.fa -I f030-dna_100_high_se_fixRG_sorted_noDup.bam -o f040-indelRealigner.intervals
-
-Perform realignment of the target intervals
-
-    GenomeAnalysisTK.jar -T IndelRealigner -R ../f000-reference.fa -I f030-dna_100_high_se_fixRG_sorted_noDup.bam -targetIntervals f040-indelRealigner.intervals \
-    -o f040-dna_100_high_se_fixRG_sorted_noDup_realigned.bam 
-
-
-5. Base quality score recalibration (using GATK)
---------------------------------------------------------------------------------
-
-Two steps:
-
-Analyze patterns of covariation in the sequence dataset
-
-    GenomeAnalysisTK.jar -T BaseRecalibrator -R ../f000-reference.fa -I f040-dna_100_high_se_fixRG_sorted_noDup_realigned.bam -knownSites ../f000-dbSNP_chr21.vcf \  
-    -o f050-recalibration_data.table
-
-Apply the recalibration to your sequence data
-
-    GenomeAnalysisTK.jar -T PrintReads -R ../f000-reference.fa -I f040-dna_100_high_se_fixRG_sorted_noDup_realigned.bam -BQSR f050-recalibration_data.table \  
-    -o f050-dna_100_high_se_fixRG_sorted_noDup_realigned_recalibrated.bam
-
-
-6. Variant calling (using GATK - **UnifiedGenotyper**)
---------------------------------------------------------------------------------
-
-**SNP calling**
-
-    GenomeAnalysisTK.jar -T UnifiedGenotyper -R ../f000-reference.fa -I f050-dna_100_high_se_fixRG_sorted_noDup_realigned_recalibrated.bam -glm SNP \  
-    -o f060-dna_100_high_se_snps.vcf
-
-**INDEL calling**
-
-    GenomeAnalysisTK.jar -T UnifiedGenotyper -R ../f000-reference.fa -I f050-dna_100_high_se_fixRG_sorted_noDup_realigned_recalibrated.bam -glm INDEL \  
-    -o f060-dna_100_high_se_indels.vcf
-
-
-7. Compare paired-end VCF against single-end VCF
---------------------------------------------------------------------------------
-
-Open IGV and load a the single-end VCF we have generated in this tutorial (``f060-dna_100_high_se_snps.vcf``) and the the paired-end VCF generated in example1 (``f060-dna_100_high_pe_snps.vcf``).
-
-
-
+    MuTect.jar --analysis_type MuTect --reference_sequence ../f000-reference.fa --dbsnp ../f000-dbSNP_chr21.vcf --input_file:normal f020-normal_fixRG_sorted.bam \  
+    --input_file:tumor f020-tumor_fixRG_sorted.bam --out f030-call_stats.out --coverage_file f030-coverage.wig.txt
 
