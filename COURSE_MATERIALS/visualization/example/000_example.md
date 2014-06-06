@@ -71,9 +71,52 @@ Select ``igv1.bam``
 
 **Steps:**
 
-1. Go to the location box and insert **chr11:996096-1036047** in the search box and hit ``Go``.
-2. Zoom in until you find some SNPs - they might be in exons or introns.
-3. Identify at least one example of a short insertion variant and deletion arround exon 4.
-4. Load and look at the SNP track: ``File`` --> ``Load from server`` --> ``Annotations`` --> ``Variants and Repeats`` --> ``dbSNP``
+1. Go to the location box and insert ''chr11:996096-1036047'' in the search box and hit ``Go``.
+2. Move acroos the alignment
+3. Zoom in
+4. Grey boxes are reads:
+      - point to the left --> map reverse strand
+      - point to the right --> map forward strand
+5. At the top --> histogram of coverage
+6. Zoom further
+      - Color representation of the sequence
+      - Zoom in --> Bases are shown
+      - Amminoacids corresponding to each base
+      - See all possible translation reading frames
+7. Change read information panels
+      
+What we want to do with IGV?
+--------------------------------------------------------------------------------
+1. Examine coverage
+      - High/low coverage
+      - No coverage
+2. Visualize alternative splicing
+      - RNA alignment against DNA, not cDNA
+3. Look for base changes -- > SNPs
+      - Complete grey reads --> no mismatches
+      - Coloured bases --> Change
+	    - Coverage track os only coloured if >20% of the reads support the variant
+      - Reads are shadowed acording to quality
+	    - Darker --> good quality
+	    - Ligther --> bad quality
+      - Bases are also shadowed acording to quality
+	    - Darker --> good quality
+	    - Ligther --> bad quality
+      - Inspecting a SNP (chr11:1,018,335-1,018,412)
+	    - Look at the coverage bar --> percentage and counts
+	    - Sort alignment by base
+      - Inspecting a homozigous variant (chr11:1,019,336-1,019,413)
+            - All reads support the variant but 1
+            - The reference read quality is 0
+            
+4. Load SNP data
+      - File > Load from server > Annotations > Variantion and repeats > dbSNP 1.3.7
+
+
+RNA-Seq Alignment
+====================================
+- Main difference: Presence of introns. Part of a read is on either side of the intron
+- Compare regions with coverage in a tissue and no coverage in the other tissue
+    - Isoform observed in one tissue, not the other
 
 
