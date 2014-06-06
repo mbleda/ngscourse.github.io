@@ -25,8 +25,6 @@ Day 2
 ### Visualization of NGS data
 
 - [Slides](ngscourse.github.io/COURSE_MATERIALS/visualization/slides/2014-Cambridge_visualisation.pdf) || [Practical exercise 1](COURSE_MATERIALS/visualization/example/010_example.html) || [Practical exercise 2](COURSE_MATERIALS/visualization/example/020_example.html)
-- https://github.com/mbleda/ngscourse.github.io/blob/master/COURSE_MATERIALS/visualization/slides/2014-Cambridge_visualisation.pdf
-
 
 ### Variant calling
 
